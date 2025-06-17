@@ -2,26 +2,12 @@
 
 'use client'; // This MUST be the very first line of the file
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function BrandGuideEditorPage() {
+export default function BrandGuidePage() {
   const router = useRouter();
-
-  // State for brand guide settings
-  const [brandName, setBrandName] = useState('Your E-commerce Brand');
-  const [targetAudience, setTargetAudience] = useState('Tech-savvy millennials interested in sustainable products.');
-  const [brandVoiceFormal, setBrandVoiceFormal] = useState(50); // 0=Informal, 100=Formal
-  const [brandVoiceEnthusiasm, setBrandVoiceEnthusiasm] = useState(70); // 0=Reserved, 100=Enthusiastic
-  const [keyMessages, setKeyMessages] = useState('Innovation, Sustainability, Customer Delight');
-  const [exclusionKeywords, setExclusionKeywords] = useState('cheap, discount, low-quality');
-  const [preferredCTAs, setPreferredCTAs] = useState('Shop Now, Learn More, Discover Our Collection');
-  const [aiCreativityLevel, setAiCreativityLevel] = useState('Balanced');
-  const [samplePrompt, setSamplePrompt] = useState('Write a short SMS for a new customer welcome.');
-  const [aiPreviewOutput, setAiPreviewOutput] = useState('');
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-
 
   // Authentication check
   useEffect(() => {
@@ -36,29 +22,10 @@ export default function BrandGuideEditorPage() {
     router.push('/login');
   };
 
-  const handleSaveBrandGuide = () => {
-    alert('Brand Guide Saved! (This is a mock save)');
-    console.log('Brand Guide Settings:', {
-      brandName, targetAudience, brandVoiceFormal, brandVoiceEnthusiasm,
-      keyMessages, exclusionKeywords, preferredCTAs, aiCreativityLevel
-    });
-  };
-
-  const handleGeneratePreview = async () => {
-    setIsLoadingPreview(true);
-    setAiPreviewOutput('Generating AI preview based on your guide...');
-    // Simulate AI generation delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const mockOutput = `Welcome to [Brand Name]! We're excited to have you join our community. Discover our innovative and sustainable products today! Shop Now.`;
-    setAiPreviewOutput(mockOutput.replace('[Brand Name]', brandName));
-    setIsLoadingPreview(false);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8 font-sans">
+    <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Brand Guide Editor</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Brand Guidelines</h1>
         <nav>
           <ul className="flex space-x-4">
             <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
@@ -79,173 +46,63 @@ export default function BrandGuideEditorPage() {
         </nav>
       </header>
 
-      <main className="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
-        <p className="text-gray-600 mb-8">
-          Define your brand's voice, tone, and messaging to guide the AI in generating on-brand content for your e-commerce marketing.
-        </p>
-
-        <section className="mb-8 border-b pb-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Brand Core Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="brandName" className="block text-sm font-medium text-gray-700 mb-1">Your Brand Name</label>
-              <input
-                type="text"
-                id="brandName"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-700 mb-1">Target Audience Description</label>
-              <textarea
-                id="targetAudience"
-                rows={3}
-                value={targetAudience}
-                onChange={(e) => setTargetAudience(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="e.g., Demographics, interests, pain points, aspirations..."
-              ></textarea>
-              <p className="text-sm text-gray-500 mt-1">Help the AI understand who you're talking to.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-8 border-b pb-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Brand Voice & Tone</h2>
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="voiceFormal" className="block text-sm font-medium text-gray-700 mb-2">Formal vs. Informal</label>
-              <input
-                type="range"
-                id="voiceFormal"
-                min="0"
-                max="100"
-                value={brandVoiceFormal}
-                onChange={(e) => setBrandVoiceFormal(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Informal</span>
-                <span>{brandVoiceFormal}%</span>
-                <span>Formal</span>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="voiceEnthusiasm" className="block text-sm font-medium text-gray-700 mb-2">Reserved vs. Enthusiastic</label>
-              <input
-                type="range"
-                id="voiceEnthusiasm"
-                min="0"
-                max="100"
-                value={brandVoiceEnthusiasm}
-                onChange={(e) => setBrandVoiceEnthusiasm(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Reserved</span>
-                <span>{brandVoiceEnthusiasm}%</span>
-                <span>Enthusiastic</span>
-              </div>
-            </div>
-            <div>
-              <label htmlFor="aiCreativity" className="block text-sm font-medium text-gray-700 mb-1">AI Creativity Level</label>
-              <select
-                id="aiCreativity"
-                value={aiCreativityLevel}
-                onChange={(e) => setAiCreativityLevel(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option>Low (More factual & direct)</option>
-                <option>Balanced (Standard approach)</option>
-                <option>High (More imaginative & varied)</option>
-              </select>
-              <p className="text-sm text-gray-500 mt-1">Controls how adventurous the AI is with its content suggestions.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-8 border-b pb-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Key Messaging & Keywords</h2>
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="keyMessages" className="block text-sm font-medium text-gray-700 mb-1">Core Key Messages / USPs</label>
-              <textarea
-                id="keyMessages"
-                rows={3}
-                value={keyMessages}
-                onChange={(e) => setKeyMessages(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Comma-separated (e.g., 'fast shipping, eco-friendly, unique designs')"
-              ></textarea>
-              <p className="text-sm text-gray-500 mt-1">Words or phrases the AI should try to include.</p>
-            </div>
-            <div>
-              <label htmlFor="exclusionKeywords" className="block text-sm font-medium text-gray-700 mb-1">Exclusion Keywords</label>
-              <textarea
-                id="exclusionKeywords"
-                rows={2}
-                value={exclusionKeywords}
-                onChange={(e) => setExclusionKeywords(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Comma-separated (e.g., 'bargain, cheap, outdated')"
-              ></textarea>
-              <p className="text-sm text-gray-500 mt-1">Words or phrases the AI should *avoid* using.</p>
-            </div>
-            <div>
-              <label htmlFor="preferredCTAs" className="block text-sm font-medium text-gray-700 mb-1">Preferred Call to Actions (CTAs)</label>
-              <input
-                type="text"
-                id="preferredCTAs"
-                value={preferredCTAs}
-                onChange={(e) => setPreferredCTAs(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Comma-separated (e.g., 'Shop Now, Discover, Explore')"
-              />
-              <p className="text-sm text-gray-500 mt-1">Examples of CTAs the AI should prioritize.</p>
-            </div>
-          </div>
+      <main className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Introduction to Brand Voice & Tone</h2>
+          <p className="text-gray-700 mb-4">
+            Maintaining a consistent brand voice and tone is paramount, especially when leveraging AI-powered marketing tools. These guidelines ensure that all automated content, from email campaigns to social media posts, truly reflects our brand's personality and values.
+          </p>
+          <p className="text-gray-700 mb-4">
+            Our brand voice is **authoritative, innovative, and supportive**. Our tone is adaptable, ranging from professional and informative in technical contexts to empathetic and encouraging in customer support or onboarding scenarios.
+          </p>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preview AI Generation</h2>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="samplePrompt" className="block text-sm font-medium text-gray-700 mb-1">Enter a sample prompt for AI:</label>
-              <textarea
-                id="samplePrompt"
-                rows={2}
-                value={samplePrompt}
-                onChange={(e) => setSamplePrompt(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="e.g., 'Write an email subject line for a holiday sale'"
-              ></textarea>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Key Principles for AI-Generated Content</h2>
+          <ul className="list-disc list-inside text-gray-700 space-y-2 mb-4">
+            <li>**Accuracy & Fact-Checking:** AI output must always be fact-checked and verified for accuracy before deployment.</li>
+            <li>**Brand Alignment:** Content must align with our core values and messaging. It should sound like 'us'.</li>
+            <li>**Bias Mitigation:** Actively review AI-generated content for unintended biases and ensure inclusivity.</li>
+            <li>**Human Oversight:** AI is a tool, not a replacement. Human review and approval are always the final step.</li>
+            <li>**Legal & Ethical Compliance:** All generated content must comply with relevant regulations (e.g., GDPR, CCPA) and ethical marketing practices.</li>
+          </ul>
+          <p className="text-gray-700 mb-4">
+            AI can&apos;t generate content that truly resonates emotionally or captures nuanced understanding without careful guidance. It&apos;s a powerful assistant, not an autonomous creator of brand identity.
+          </p>
+        </section>
+
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Practical Application in AI Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-medium text-gray-800 mb-2">Language & Style</h3>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>Use active voice predominantly.</li>
+                <li>Maintain a professional yet approachable vocabulary.</li>
+                <li>Avoid jargon unless audience-specific and explained.</li>
+                <li>Sentence structure: Vary for readability, but favor clarity.</li>
+              </ul>
             </div>
-            <button
-              onClick={handleGeneratePreview}
-              disabled={isLoadingPreview}
-              className="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoadingPreview ? 'Generating...' : 'Generate AI Preview'}
-            </button>
-            {aiPreviewOutput && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-800">
-                <p className="font-semibold mb-2">AI Output Preview:</p>
-                <p className="whitespace-pre-wrap">{aiPreviewOutput}</p>
-              </div>
-            )}
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 className="text-xl font-medium text-gray-800 mb-2">Common Phrases & Keywords</h3>
+              <ul className="list-disc list-inside text-gray-700 space-y-1">
+                <li>Prioritize 'innovate', 'optimize', 'empower'.</li>
+                <li>Avoid overly informal slang or excessive exclamation marks.</li>
+                <li>Always refer to our product as 'The Autonomous Marketing Platform'.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
-        <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end">
-          <button
-            onClick={handleSaveBrandGuide}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Save Brand Guide
+        <section>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Updating & Maintaining Guidelines</h2>
+          <p className="text-gray-700 mb-4">
+            These guidelines are dynamic. As our brand evolves and AI capabilities advance, it&apos;s crucial that AI tools are trained on a robust dataset, and these guidelines will be updated. Please check back regularly for the latest version. Feedback and suggestions are always welcome.
+          </p>
+          <button className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Submit Feedback
           </button>
-        </div>
+        </section>
       </main>
 
       <footer className="text-center text-gray-500 mt-8">

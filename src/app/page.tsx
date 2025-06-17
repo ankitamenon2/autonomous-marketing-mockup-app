@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
   const generateSegmentData = (base: number, volatility: number, trend: number) => {
     return Array.from({ length: 30 }, (_, i) => {
-      let value = base + Math.sin(i * 0.4) * volatility + (i * trend);
+      const value = base + Math.sin(i * 0.4) * volatility + (i * trend); // FIXED: Changed 'let' to 'const'
       return Math.max(0, Math.round(value + Math.random() * 50));
     });
   };
@@ -186,6 +186,7 @@ export default function DashboardPage() {
     },
   };
 
+
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
@@ -253,7 +254,7 @@ export default function DashboardPage() {
         {/* Brand Guide Card */}
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Brand Guidelines</h2>
-          <p className="text-gray-600 mb-4">Ensure all AI-generated content and campaigns adhere to your brand's voice and style.</p>
+          <p className="text-gray-600 mb-4">Ensure all AI-generated content and campaigns adhere to your brand&apos;s voice and style.</p>
           <Link
             href="/brand-guide"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
