@@ -85,7 +85,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-gray-500 text-sm mt-6">
-          This is a mockup. Use 'admin' for username and 'password' for password.
+          This is a mockup. Use &apos;admin&apos; for username and &apos;password&apos; for password.
         </p>
       </div>
     </div>

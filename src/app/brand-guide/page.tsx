@@ -50,7 +50,7 @@ export default function BrandGuidePage() {
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Introduction to Brand Voice & Tone</h2>
           <p className="text-gray-700 mb-4">
-            Maintaining a consistent brand voice and tone is paramount, especially when leveraging AI-powered marketing tools. These guidelines ensure that all automated content, from email campaigns to social media posts, truly reflects our brand's personality and values.
+            Maintaining a consistent brand voice and tone is paramount, especially when leveraging AI-powered marketing tools. These guidelines ensure that all automated content, from email campaigns to social media posts, truly reflects our brand&apos;s personality and values.
           </p>
           <p className="text-gray-700 mb-4">
             Our brand voice is **authoritative, innovative, and supportive**. Our tone is adaptable, ranging from professional and informative in technical contexts to empathetic and encouraging in customer support or onboarding scenarios.
@@ -61,7 +61,7 @@ export default function BrandGuidePage() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">Key Principles for AI-Generated Content</h2>
           <ul className="list-disc list-inside text-gray-700 space-y-2 mb-4">
             <li>**Accuracy & Fact-Checking:** AI output must always be fact-checked and verified for accuracy before deployment.</li>
-            <li>**Brand Alignment:** Content must align with our core values and messaging. It should sound like 'us'.</li>
+            <li>**Brand Alignment:** Content must align with our core values and messaging. It should sound like &apos;us&apos;.</li>
             <li>**Bias Mitigation:** Actively review AI-generated content for unintended biases and ensure inclusivity.</li>
             <li>**Human Oversight:** AI is a tool, not a replacement. Human review and approval are always the final step.</li>
             <li>**Legal & Ethical Compliance:** All generated content must comply with relevant regulations (e.g., GDPR, CCPA) and ethical marketing practices.</li>
@@ -86,9 +86,9 @@ export default function BrandGuidePage() {
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-xl font-medium text-gray-800 mb-2">Common Phrases & Keywords</h3>
               <ul className="list-disc list-inside text-gray-700 space-y-1">
-                <li>Prioritize 'innovate', 'optimize', 'empower'.</li>
+                <li>Prioritize &apos;innovate&apos;, &apos;optimize&apos;, &apos;empower&apos;.</li>
                 <li>Avoid overly informal slang or excessive exclamation marks.</li>
-                <li>Always refer to our product as 'The Autonomous Marketing Platform'.</li>
+                <li>Always refer to our product as &apos;The Autonomous Marketing Platform&apos;.</li>
               </ul>
             </div>
           </div>
