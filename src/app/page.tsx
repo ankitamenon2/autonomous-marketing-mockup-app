@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
   const generateSegmentData = (base: number, volatility: number, trend: number) => {
     return Array.from({ length: 30 }, (_, i) => {
-      const value = base + Math.sin(i * 0.4) * volatility + (i * trend); // FIXED: Changed 'let' to 'const'
+      const value = base + Math.sin(i * 0.4) * volatility + (i * trend);
       return Math.max(0, Math.round(value + Math.random() * 50));
     });
   };
@@ -181,7 +181,11 @@ export default function DashboardPage() {
       y: {
         beginAtZero: true,
         grid: { color: 'rgba(200, 200, 200, 0.2)' },
-        ticks: { callback: function(value: any) { return '$' + value.toLocaleString(); } }
+        ticks: {
+          callback: function(value: unknown) { // FIXED: value: any -> value: unknown
+            return '$' + (value as number).toLocaleString(); // FIXED: explicit cast
+          }
+        },
       },
     },
   };
@@ -254,7 +258,7 @@ export default function DashboardPage() {
         {/* Brand Guide Card */}
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Brand Guidelines</h2>
-          <p className="text-gray-600 mb-4">Ensure all AI-generated content and campaigns adhere to your brand&apos;s voice and style.</p>
+          <p className="text-gray-600 mb-4">Ensure all AI-generated content and campaigns adhere to your brand&apos;s voice and style.</p> {/* FIXED: brand's -> brand&apos;s */}
           <Link
             href="/brand-guide"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -272,15 +276,15 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Activities</h2>
           <ul className="divide-y divide-gray-200">
             <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">Campaign "Summer Sale" launched.</span>
+              <span className="text-gray-700">Campaign &quot;Summer Sale&quot; launched.</span> {/* FIXED: &quot; for double quotes */}
               <span className="text-gray-500">2 hours ago</span>
             </li>
             <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">10 new customers added to "New Sign-ups" segment.</span>
+              <span className="text-gray-700">10 new customers added to &quot;New Sign-ups&quot; segment.</span> {/* FIXED: &quot; for double quotes */}
               <span className="text-gray-500">Yesterday</span>
             </li>
             <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">Email sequence "Welcome Series" completed for 50 users.</span>
+              <span className="text-gray-700">Email sequence &quot;Welcome Series&quot; completed for 50 users.</span> {/* FIXED: &quot; for double quotes */}
               <span className="text-gray-500">2 days ago</span>
             </li>
             <li className="py-3 flex justify-between items-center text-sm">
