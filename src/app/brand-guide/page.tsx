@@ -1,6 +1,7 @@
 // autonomous-marketing-mockup/app/brand-guide/page.tsx
 
 'use client'; // This MUST be the very first line of the file
+// Temporary change for Git test - PLEASE REMOVE LATER
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
