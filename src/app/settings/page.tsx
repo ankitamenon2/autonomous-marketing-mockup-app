@@ -1,27 +1,28 @@
-// autonomous-marketing-mockup/app/settings/page.tsx
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
+// import Link from 'next/link'; // REMOVED: Next.js specific import
 
 export default function SettingsPage() {
-  const router = useRouter();
+  // const router = useRouter(); // REMOVED: Next.js specific hook
   // State to manage which setting section is active
   const [activeSection, setActiveSection] = useState('general');
+  // State to manage the open/close state of the Account & Billing dropdown
+  const [isBillingDropdownOpen, setIsBillingDropdownOpen] = useState(false);
+
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login');
+      window.location.href = '/login'; // CHANGED: Use window.location for redirection
     }
-  }, [router]);
+  }, []); // Removed router from dependency array
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login');
+    window.location.href = '/login'; // CHANGED: Use window.location for redirection
   };
 
   // Dummy state for various settings (replace with actual state management/API calls)
@@ -55,12 +56,13 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-gray-800">Account Settings</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
+            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
+            <li><a href="/settings" className="text-blue-600 font-semibold underline">Settings</a></li>
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
+            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
+            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li>
             <li>
               <button
                 onClick={handleLogout}
@@ -79,7 +81,7 @@ export default function SettingsPage() {
           <ul className="space-y-2">
             <li>
               <button
-                onClick={() => setActiveSection('general')}
+                onClick={() => { setActiveSection('general'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'general' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -89,7 +91,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={() => setActiveSection('integrations')}
+                onClick={() => { setActiveSection('integrations'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'integrations' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -99,7 +101,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={() => setActiveSection('ai_content')}
+                onClick={() => { setActiveSection('ai_content'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'ai_content' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -109,7 +111,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={() => setActiveSection('automation_defaults')}
+                onClick={() => { setActiveSection('automation_defaults'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'automation_defaults' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -119,7 +121,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={() => setActiveSection('data_segmentation')}
+                onClick={() => { setActiveSection('data_segmentation'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'data_segmentation' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -129,7 +131,7 @@ export default function SettingsPage() {
             </li>
             <li>
               <button
-                onClick={() => setActiveSection('notifications')}
+                onClick={() => { setActiveSection('notifications'); setIsBillingDropdownOpen(false); }}
                 className={`w-full text-left p-2 rounded-md transition-colors ${
                   activeSection === 'notifications' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -137,15 +139,47 @@ export default function SettingsPage() {
                 Notifications
               </button>
             </li>
+            {/* Account & Billing with Dropdown */}
             <li>
               <button
-                onClick={() => setActiveSection('billing')}
-                className={`w-full text-left p-2 rounded-md transition-colors ${
+                onClick={() => {
+                  setActiveSection('billing');
+                  setIsBillingDropdownOpen(!isBillingDropdownOpen); // Toggle dropdown
+                }}
+                className={`w-full text-left p-2 rounded-md transition-colors flex justify-between items-center ${
                   activeSection === 'billing' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                Account & Billing
+                <span>Account & Billing</span>
+                <svg
+                  className={`h-5 w-5 transform transition-transform ${isBillingDropdownOpen ? 'rotate-180' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </button>
+              {isBillingDropdownOpen && (
+                <ul className="pl-4 mt-1 space-y-1">
+                  <li>
+                    <a
+                      href="/settings/billing/manage-subscription"
+                      className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
+                    >
+                      Manage Subscription
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/settings/billing/history"
+                      className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
+                    >
+                      View Billing History
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
           </ul>
         </nav>
@@ -183,6 +217,10 @@ export default function SettingsPage() {
                 >
                   Save General Settings
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    Clicking 'Save General Settings' will update your core company contact and information across the system. These changes will reflect immediately.
+                </p>
               </div>
             </section>
           )}
@@ -235,6 +273,10 @@ export default function SettingsPage() {
                 >
                   Save Integrations
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    Clicking 'Save Integrations' will update API keys and platform connections. Incorrect keys may disrupt campaign sending or data sync.
+                </p>
               </div>
             </section>
           )}
@@ -289,6 +331,10 @@ export default function SettingsPage() {
                 >
                   Save AI & Content Settings
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    Saving these settings will influence the tone, creativity, and keyword usage of all future AI-generated content.
+                </p>
               </div>
             </section>
           )}
@@ -337,6 +383,10 @@ export default function SettingsPage() {
                 >
                   Save Automation Defaults
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    These settings define the default behavior for new automated campaigns. Changes will apply to future campaigns but not modify existing ones unless explicitly updated.
+                </p>
               </div>
             </section>
           )}
@@ -380,6 +430,10 @@ export default function SettingsPage() {
                 >
                   Save Data & Segmentation Settings
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    Changes to data and segmentation settings affect how customer data is processed and organized for targeting. Data retention changes may impact compliance.
+                </p>
               </div>
             </section>
           )}
@@ -429,38 +483,66 @@ export default function SettingsPage() {
                 >
                   Save Notification Settings
                 </button>
+                 {/* Explanation for Save button */}
+                 <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
+                    Saving these notification preferences will update how and when you receive alerts about your campaigns and account status.
+                </p>
               </div>
             </section>
           )}
 
-          {/* Account & Billing Section */}
+          {/* Placeholder for Account & Billing details when 'billing' is active, but sub-items are clicked */}
           {activeSection === 'billing' && (
             <section>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Account & Billing</h2>
-              <div className="space-y-6">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Account & Billing Overview</h2>
+              <div className="space-y-4">
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-4 text-blue-800 rounded-md">
                   <p className="font-semibold">Current Plan: Professional Tier</p>
                   <p className="text-sm mt-1">Next billing date: July 1, 2025</p>
                   <p className="text-sm mt-1">Usage: 80% of monthly SMS credits used</p>
+                  <p className="text-sm mt-1">For detailed information, please use the links in the sidebar.</p>
                 </div>
-                <div>
-                  <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">
-                    Manage Subscription
-                  </button>
-                </div>
-                <div>
-                  <button className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors">
-                    Update Payment Method
-                  </button>
-                </div>
-                <div>
-                  <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
-                    View Billing History
-                  </button>
-                </div>
+                {/* No save button here as the sub-sections handle navigation */}
               </div>
             </section>
           )}
+
+          {/* Placeholder for Manage Subscription Page (if directly linked/routed) */}
+          {activeSection === 'manage-subscription' && (
+             <section>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Manage Your Subscription</h2>
+                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+                    <p className="text-gray-700">This section would typically integrate with your payment provider (e.g., Stripe, Paddle) to allow you to:</p>
+                    <ul className="list-disc list-inside mt-3 text-gray-700 space-y-1">
+                        <li>View your current plan details</li>
+                        <li>Upgrade or downgrade your subscription</li>
+                        <li>Change billing frequency</li>
+                        <li>Update payment methods</li>
+                        <li>Cancel your subscription</li>
+                    </ul>
+                    <p className="text-sm text-gray-500 mt-4">In a live application, this would redirect to a secure external portal or load sensitive billing forms here.</p>
+                </div>
+             </section>
+          )}
+
+          {/* Placeholder for View Billing History Page (if directly linked/routed) */}
+          {activeSection === 'view-history' && (
+             <section>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Billing History</h2>
+                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+                    <p className="text-gray-700">Here you would see a comprehensive list of your past invoices and transactions.</p>
+                    <ul className="list-disc list-inside mt-3 text-gray-700 space-y-1">
+                        <li>Invoice number</li>
+                        <li>Date</li>
+                        <li>Amount</li>
+                        <li>Status (Paid, Pending, etc.)</li>
+                        <li>Download link for PDF invoices</li>
+                    </ul>
+                    <p className="text-sm text-gray-500 mt-4">This data would be fetched from your billing provider's API.</p>
+                </div>
+             </section>
+          )}
+
         </div>
       </main>
 

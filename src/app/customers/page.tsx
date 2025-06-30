@@ -1,23 +1,22 @@
-// autonomous-marketing-mockup/app/customers/page.tsx
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
+// import Link from 'next/link'; // REMOVED: Next.js specific import
 
 // Mock customer data (replace with API calls in a real application)
+// ADDED: phone number and repeat purchase count
 const mockCustomers = [
-  { id: 1, name: 'Alice Wonderland', email: 'alice@example.com', segment: 'High-Value VIPs', lastPurchase: '2025-06-10', totalSpent: 1250.50 },
-  { id: 2, name: 'Bob The Builder', email: 'bob@example.com', segment: 'Recent Purchasers', lastPurchase: '2025-06-13', totalSpent: 75.00 },
-  { id: 3, name: 'Charlie Chaplin', email: 'charlie@example.com', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0 },
-  { id: 4, name: 'Diana Prince', email: 'diana@example.com', segment: 'High-Value VIPs', lastPurchase: '2025-06-05', totalSpent: 1890.75 },
-  { id: 5, name: 'Eve Harrington', email: 'eve@example.com', segment: 'First-Time Buyers', lastPurchase: '2025-06-12', totalSpent: 45.20 },
-  { id: 6, name: 'Frankenstein Monster', email: 'frank@example.com', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0 },
-  { id: 7, name: 'Greta Garbo', email: 'greta@example.com', segment: 'High-Value VIPs', lastPurchase: '2025-06-01', totalSpent: 2100.00 },
-  { id: 8, name: 'Hans Solo', email: 'hans@example.com', segment: 'Recent Purchasers', lastPurchase: '2025-06-11', totalSpent: 92.99 },
-  { id: 9, name: 'Ivy Smith', email: 'ivy@example.com', segment: 'First-Time Buyers', lastPurchase: '2025-06-14', totalSpent: 29.50 },
-  { id: 10, name: 'Jack Sparrow', email: 'jack@example.com', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0 },
+  { id: 1, name: 'Alice Wonderland', email: 'alice@example.com', phone: '+1-555-123-4567', segment: 'High-Value VIPs', lastPurchase: '2025-06-10', totalSpent: 1250.50, repeatPurchaseCount: 3 },
+  { id: 2, name: 'Bob The Builder', email: 'bob@example.com', phone: '+1-555-234-5678', segment: 'Recent Purchasers', lastPurchase: '2025-06-13', totalSpent: 75.00, repeatPurchaseCount: 1 },
+  { id: 3, name: 'Charlie Chaplin', email: 'charlie@example.com', phone: '+1-555-345-6789', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0, repeatPurchaseCount: 0 },
+  { id: 4, name: 'Diana Prince', email: 'diana@example.com', phone: '+1-555-456-7890', segment: 'High-Value VIPs', lastPurchase: '2025-06-05', totalSpent: 1890.75, repeatPurchaseCount: 5 },
+  { id: 5, name: 'Eve Harrington', email: 'eve@example.com', phone: '+1-555-567-8901', segment: 'First-Time Buyers', lastPurchase: '2025-06-12', totalSpent: 45.20, repeatPurchaseCount: 1 },
+  { id: 6, name: 'Frankenstein Monster', email: 'frank@example.com', phone: '+1-555-678-9012', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0, repeatPurchaseCount: 0 },
+  { id: 7, name: 'Greta Garbo', email: 'greta@example.com', phone: '+1-555-789-0123', segment: 'High-Value VIPs', lastPurchase: '2025-06-01', totalSpent: 2100.00, repeatPurchaseCount: 7 },
+  { id: 8, name: 'Hans Solo', email: 'hans@example.com', phone: '+1-555-890-1234', segment: 'Recent Purchasers', lastPurchase: '2025-06-11', totalSpent: 92.99, repeatPurchaseCount: 2 },
+  { id: 9, name: 'Ivy Smith', email: 'ivy@example.com', phone: '+1-555-901-2345', segment: 'First-Time Buyers', lastPurchase: '2025-06-14', totalSpent: 29.50, repeatPurchaseCount: 1 },
+  { id: 10, name: 'Jack Sparrow', email: 'jack@example.com', phone: '+1-555-012-3456', segment: 'Newsletter Subscribers', lastPurchase: null, totalSpent: 0, repeatPurchaseCount: 0 },
 ];
 
 const formatDate = (dateString: string | null) => {
@@ -29,20 +28,20 @@ const formatDate = (dateString: string | null) => {
 const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
 export default function CustomersPage() {
-  const router = useRouter();
+  // const router = useRouter(); // REMOVED: Next.js specific hook
   const [customers, setCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login');
+      window.location.href = '/login'; // CHANGED: Use window.location for redirection
     }
-  }, [router]);
+  }, []); // Removed router from dependency array
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login');
+    window.location.href = '/login'; // CHANGED: Use window.location for redirection
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +49,8 @@ export default function CustomersPage() {
     // In a real application, you would filter the customer data based on the search term
     const filteredCustomers = mockCustomers.filter(customer =>
       customer.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
-      customer.email.toLowerCase().includes(event.target.value.toLowerCase())
+      customer.email.toLowerCase().includes(event.target.value.toLowerCase()) ||
+      (customer.phone && customer.phone.toLowerCase().includes(event.target.value.toLowerCase())) // ADDED: Search by phone number
     );
     setCustomers(filteredCustomers);
   };
@@ -61,12 +61,13 @@ export default function CustomersPage() {
         <h1 className="text-3xl font-bold text-gray-800">Customers</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 font-semibold underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/customers" className="text-blue-600 font-semibold underline">Customers</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li> {/* CHANGED: Link to a */}
+            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li> {/* ADDED: Link to Monthly Goals */}
             <li>
               <button
                 onClick={handleLogout}
@@ -109,6 +110,9 @@ export default function CustomersPage() {
                   Email
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Phone
+                </th> {/* ADDED: Phone column header */}
+                <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Segment
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -118,8 +122,9 @@ export default function CustomersPage() {
                   Total Spent
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
+                  Repeat Customer
+                </th> {/* ADDED: Repeat Customer column header */}
+                {/* REMOVED: Actions column header */}
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -130,6 +135,9 @@ export default function CustomersPage() {
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
                     <p className="text-gray-900 whitespace-no-wrap">{customer.email}</p>
+                  </td>
+                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                    <p className="text-gray-900 whitespace-no-wrap">{customer.phone}</p> {/* ADDED: Phone data cell */}
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
                     <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
@@ -144,10 +152,11 @@ export default function CustomersPage() {
                     <p className="text-gray-900 whitespace-no-wrap">{formatCurrency(customer.totalSpent)}</p>
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <Link href={`/customers/${customer.id}`} className="text-indigo-600 hover:text-indigo-800">
-                      View Details
-                    </Link>
+                    <p className="text-gray-900 whitespace-no-wrap">
+                      {customer.repeatPurchaseCount > 1 ? `Yes (${customer.repeatPurchaseCount})` : 'No'}
+                    </p> {/* ADDED: Repeat Customer data cell */}
                   </td>
+                  {/* REMOVED: Actions column data cell */}
                 </tr>
               ))}
             </tbody>

@@ -38,10 +38,10 @@ export default function SegmentsPage() {
   const customerSegments = [
     { id: 1, name: 'High-Value VIPs', rfm: true, size: 4120, orders: 26610, revenue: 3640000, ltv30d: 222.43, ltv60d: 275.48, ltv365d: 565.97 }, // Corresponds to 'Whales'
     { id: 2, name: 'Recent Purchasers', rfm: true, size: 193290, orders: 327130, revenue: 29280000, ltv30d: 102.76, ltv60d: 108.38, ltv365d: 132.00 }, // Corresponds to 'Newbies'
-    { id: 3, name: 'Abandoned Carts', rfm: false, size: 11370, orders: 92020, revenue: 4330000, ltv30d: 114.05, ltv60d: 138.71, ltv365d: 272.84 }, // Corresponds to 'Promising'
+    { id: 3, name: 'Abandoned Carts', rfm: true, size: 11370, orders: 92020, revenue: 4330000, ltv30d: 114.05, ltv60d: 138.71, ltv365d: 272.84 }, // Corresponds to 'Promising'
     { id: 4, name: 'Inactive Users', rfm: true, size: 613920, orders: 815470, revenue: 63440000, ltv30d: 85.37, ltv60d: 88.57, ltv365d: 99.47 }, // Corresponds to 'Lost'
-    { id: 5, name: 'First-Time Buyers', rfm: false, size: 2430, orders: 15080, revenue: 2060000, ltv30d: 222.51, ltv60d: 271.66, ltv365d: 551.05 }, // Corresponds to 'Core'
-    { id: 6, name: 'Newsletter Subscribers', rfm: false, size: 20610, orders: 132440, revenue: 11140000, ltv30d: 146.36, ltv60d: 178.53, ltv365d: 356.51 }, // Corresponds to 'Loyal'
+    { id: 5, name: 'First-Time Buyers', rfm: true, size: 2430, orders: 15080, revenue: 2060000, ltv30d: 222.51, ltv60d: 271.66, ltv365d: 551.05 }, // Corresponds to 'Core'
+    { id: 6, name: 'Newsletter Subscribers', rfm: true, size: 20610, orders: 132440, revenue: 11140000, ltv30d: 146.36, ltv60d: 178.53, ltv365d: 356.51 }, // Corresponds to 'Loyal'
   ];
 
   const handleLogout = () => {

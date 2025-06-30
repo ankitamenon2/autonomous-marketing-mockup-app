@@ -1,10 +1,8 @@
-// autonomous-marketing-mockup/app/analytics/page.tsx
-
 'use client'; // This MUST be the very first line of the file
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
+// import Link from 'next/link'; // REMOVED: Next.js specific import
 
 // Import Chart.js components
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
@@ -15,7 +13,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement, // Needed for Doughnut/Pie charts
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -35,30 +33,30 @@ ChartJS.register(
 );
 
 export default function AnalyticsPage() {
-  const router = useRouter();
+  // const router = useRouter(); // REMOVED: Next.js specific hook
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login');
+      window.location.href = '/login'; // CHANGED: Use window.location for redirection
     }
-  }, [router]);
+  }, []); // Removed router from dependency array
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login');
+    window.location.href = '/login'; // CHANGED: Use window.location for redirection
   };
 
-  // --- Mock Data for Charts ---
+  // --- Mock Data for Campaign-Focused Analytics ---
 
-  // Revenue Trend Data
+  // Campaign-Driven Revenue Trend Data (Retained, re-contextualized)
   const revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const revenueData = {
     labels: revenueLabels,
     datasets: [
       {
-        label: 'Monthly Revenue',
+        label: 'Campaign-Driven Monthly Revenue', // CHANGED: Label
         data: [15000, 18000, 22000, 20000, 25000, 28000, 30000, 32000, 35000, 38000, 40000, 42000],
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.5)',
@@ -73,7 +71,7 @@ export default function AnalyticsPage() {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: 'Revenue Trend Over Time' },
+      title: { display: true, text: 'Campaign-Driven Revenue Trend Over Time' }, // CHANGED: Title
     },
     scales: {
       x: { grid: { display: false } },
@@ -81,21 +79,21 @@ export default function AnalyticsPage() {
         beginAtZero: true,
         grid: { color: 'rgba(200, 200, 200, 0.2)' },
         ticks: {
-          callback: function(value: unknown) { // FIXED: value: any -> value: unknown
-            return '$' + (value as number).toLocaleString(); // FIXED: explicit cast
+          callback: function(value: unknown) {
+            return '$' + (value as number).toLocaleString();
           }
         },
       },
     },
   };
 
-  // Conversion Funnel Data
-  const funnelData = {
-    labels: ['Website Visitors', 'Leads Generated', 'Opportunities', 'Customers'],
+  // Campaign Performance Funnel (Re-contextualized)
+  const campaignFunnelData = {
+    labels: ['Messages Sent', 'Messages Opened', 'Links Clicked', 'Conversions'], // CHANGED: Labels
     datasets: [
       {
-        label: 'Conversion Stages',
-        data: [10000, 3000, 800, 200],
+        label: 'Campaign Funnel Stages',
+        data: [50000, 15000, 3000, 500], // Example data for campaign funnel
         backgroundColor: [
           'rgba(255, 99, 132, 0.7)',
           'rgba(54, 162, 235, 0.7)',
@@ -113,20 +111,20 @@ export default function AnalyticsPage() {
     ],
   };
 
-  const funnelOptions = {
+  const campaignFunnelOptions = {
     responsive: true,
-    indexAxis: 'y' as const, // Makes it a horizontal bar chart
+    indexAxis: 'y' as const,
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      title: { display: true, text: 'Conversion Funnel Stages' },
+      title: { display: true, text: 'Campaign Performance Funnel' }, // CHANGED: Title
     },
     scales: {
       x: {
         beginAtZero: true,
         ticks: {
-          callback: function(value: unknown) { // FIXED: value: any -> value: unknown
-            return (value as number) + '%'; // FIXED: explicit cast
+          callback: function(value: unknown) {
+            return (value as number).toLocaleString(); // Display as raw count
           }
         }
       },
@@ -134,89 +132,88 @@ export default function AnalyticsPage() {
     },
   };
 
-  // Traffic Sources Data
-  const trafficData = {
-    labels: ['Organic Search', 'Social Media', 'Referral', 'Paid Ads', 'Direct'],
-    datasets: [
-      {
-        label: '# of Users',
-        data: [40, 25, 15, 10, 10], // Percentages
-        backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
-        ],
-        hoverOffset: 4,
-      },
-    ],
-  };
-
-  const trafficOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'right' as const },
-      title: { display: true, text: 'Traffic Sources Distribution' },
+  // Mock data for Campaign Performance Table
+  const mockCampaigns = [
+    {
+      id: 1,
+      name: 'Summer Sale Blast',
+      lastRun: '2025-06-20',
+      status: 'Active',
+      messagesSent: 15000,
+      peopleReached: 12000,
+      linkClicks: 3500,
+      revenueGenerated: 15500,
+      conversionRate: 2.5,
+      ctr: 23.3, // Calculated as (linkClicks / messagesSent) * 100
+      working: true,
     },
-  };
-
-  // Top Products Revenue Data
-  const productsData = {
-    labels: ['Product A', 'Product B', 'Product C', 'Product D', 'Product E'],
-    datasets: [
-      {
-        label: 'Revenue',
-        data: [50000, 35000, 25000, 15000, 10000],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 206, 86, 0.6)',
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(153, 102, 255, 0.6)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const productsOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      title: { display: true, text: 'Top 5 Products by Revenue' },
+    {
+      id: 2,
+      name: 'Welcome Series (New Signups)',
+      lastRun: '2025-06-25',
+      status: 'Active',
+      messagesSent: 2000,
+      peopleReached: 2000,
+      linkClicks: 800,
+      revenueGenerated: 2100,
+      conversionRate: 1.8,
+      ctr: 40.0,
+      working: true,
     },
-    scales: {
-      x: {
-        beginAtZero: true,
-        ticks: {
-          callback: function(value: unknown) { // FIXED: value: any -> value: unknown
-            return '$' + (value as number).toLocaleString(); // FIXED: explicit cast
-          }
-        },
-      },
-      y: { grid: { display: false } },
+    {
+      id: 3,
+      name: 'Inactive Customer Re-engagement',
+      lastRun: '2025-06-15',
+      status: 'Paused',
+      messagesSent: 5000,
+      peopleReached: 4500,
+      linkClicks: 300,
+      revenueGenerated: 500,
+      conversionRate: 0.5,
+      ctr: 6.0,
+      working: false,
     },
-  };
-
+    {
+      id: 4,
+      name: 'VIP Early Access Promo',
+      lastRun: '2025-06-18',
+      status: 'Completed',
+      messagesSent: 1000,
+      peopleReached: 1000,
+      linkClicks: 450,
+      revenueGenerated: 8000,
+      conversionRate: 5.0,
+      ctr: 45.0,
+      working: true,
+    },
+    {
+      id: 5,
+      name: 'Holiday Gifting Guide',
+      lastRun: '2024-12-01',
+      status: 'Archived',
+      messagesSent: 25000,
+      peopleReached: 20000,
+      linkClicks: 6000,
+      revenueGenerated: 25000,
+      conversionRate: 3.0,
+      ctr: 24.0,
+      working: true,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Analytics</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Campaign Analytics</h1> {/* CHANGED: Title */}
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 font-semibold underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
+            <li><a href="/analytics" className="text-blue-600 font-semibold underline">Analytics</a></li>
+            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
+            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
+            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li>
             <li>
               <button
                 onClick={handleLogout}
@@ -230,87 +227,146 @@ export default function AnalyticsPage() {
       </header>
 
       <main>
-        {/* Analytics Overview Cards */}
+        {/* Campaign Analytics Overview Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Total Conversions</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">2,345</p>
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Campaigns Launched</p> {/* CHANGED */}
+            <p className="mt-1 text-3xl font-bold text-gray-900">18</p> {/* MOCK DATA */}
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 12%</span>
+              <span className="mr-1">▲ 3</span> {/* MOCK DATA */}
+              <span className="text-gray-500">since last month</span>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Messages Sent</p> {/* CHANGED */}
+            <p className="mt-1 text-3xl font-bold text-gray-900">250,000</p> {/* MOCK DATA */}
+            <div className="flex items-center text-sm mt-2 text-green-600">
+              <span className="mr-1">▲ 15%</span> {/* MOCK DATA */}
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Avg. Order Value</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">$120.50</p>
-            <div className="flex items-center text-sm mt-2 text-red-600">
-              <span className="mr-1">▼ 3%</span>
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Link Clicks</p> {/* CHANGED */}
+            <p className="mt-1 text-3xl font-bold text-gray-900">12,500</p> {/* MOCK DATA */}
+            <div className="flex items-center text-sm mt-2 text-green-600">
+              <span className="mr-1">▲ 10%</span> {/* MOCK DATA */}
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Website Visitors</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">55,789</p>
+            <p className="text-sm font-medium text-gray-500 uppercase">Campaign Conversion Rate</p> {/* CHANGED */}
+            <p className="mt-1 text-3xl font-bold text-gray-900">3.2%</p> {/* MOCK DATA */}
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 8%</span>
-              <span className="text-gray-500">vs. last month</span>
-            </div>
-          </div>
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Customer Retention</p>
-            <p className="mt-1 text-3xl font-bold text-gray-900">78%</p>
-            <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 1.5%</span>
+              <span className="mr-1">▲ 0.4%</span> {/* MOCK DATA */}
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
         </section>
 
-        {/* Charts Section */}
+        {/* Campaign Performance Charts */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Revenue Trend</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Campaign-Driven Revenue Trend</h3>
             <div className="h-full w-full">
               <Line data={revenueData} options={revenueOptions} />
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Conversion Funnel</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Campaign Engagement Funnel</h3> {/* CHANGED: Title */}
             <div className="h-full w-full">
-              <Bar data={funnelData} options={funnelOptions} />
+              <Bar data={campaignFunnelData} options={campaignFunnelOptions} /> {/* CHANGED: Data and Options */}
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Traffic Sources</h3>
-            <div className="h-full w-full">
-              <Doughnut data={trafficData} options={trafficOptions} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Top 5 Products by Revenue</h3>
-            <div className="h-full w-full">
-              <Bar data={productsData} options={productsOptions} />
-            </div>
-          </div>
+          {/* REMOVED: Traffic Sources Chart */}
+          {/* REMOVED: Top 5 Products by Revenue Chart */}
         </section>
 
-        {/* Date Range Selector (Placeholder) */}
+        {/* Campaign Performance Table (Working vs. Not Working) - NEW SECTION */}
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Filter Data</h2>
-          <div className="flex items-center space-x-4">
-            <label htmlFor="date-range" className="text-gray-700">Select Date Range:</label>
-            <select id="date-range" className="block w-48 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>Last 90 Days</option>
-              <option>Last Year</option>
-              <option>Custom Range</option>
-            </select>
-            <button className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              Apply
-            </button>
-          </div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Campaign Performance Overview</h2>
+            <div className="overflow-x-auto">
+                <table className="min-w-full leading-normal">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Campaign Name
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Last Run
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Messages Sent
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Link Clicks
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                CTR (%)
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Revenue
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Performance
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white">
+                        {mockCampaigns.map((campaign) => (
+                            <tr key={campaign.id}>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.name}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.lastRun}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
+                                        campaign.status === 'Active' ? 'text-green-900' :
+                                        campaign.status === 'Paused' ? 'text-yellow-900' :
+                                        'text-gray-900' // For Completed/Archived
+                                    }`}>
+                                        <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
+                                            campaign.status === 'Active' ? 'bg-green-200' :
+                                            campaign.status === 'Paused' ? 'bg-yellow-200' :
+                                            'bg-gray-200'
+                                        }`}></span>
+                                        <span className="relative">{campaign.status}</span>
+                                    </span>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.messagesSent.toLocaleString()}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.linkClicks.toLocaleString()}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.ctr.toFixed(1)}%</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <p className="text-gray-900 whitespace-no-wrap">${campaign.revenueGenerated.toLocaleString()}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                                    <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
+                                        campaign.working ? 'text-green-900' : 'text-red-900'
+                                    }`}>
+                                        <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
+                                            campaign.working ? 'bg-green-200' : 'bg-red-200'
+                                        }`}></span>
+                                        <span className="relative">{campaign.working ? 'Working Well' : 'Needs Review'}</span>
+                                    </span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </section>
+
+        {/* REMOVED: Date Range Selector Section */}
       </main>
 
       <footer className="text-center text-gray-500 mt-8">
