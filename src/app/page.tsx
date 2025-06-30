@@ -1,4 +1,4 @@
-
+'use client';
 
 import React, { useEffect } from 'react';
 // Removed Next.js specific imports to resolve build errors
@@ -14,6 +14,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
+  // Removed ArcElement as Doughnut is no longer used
   Title,
   Tooltip,
   Legend,
@@ -26,6 +27,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
+  // Removed ArcElement registration
   Title,
   Tooltip,
   Legend
@@ -330,3 +332,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+//sjsjjsjss
