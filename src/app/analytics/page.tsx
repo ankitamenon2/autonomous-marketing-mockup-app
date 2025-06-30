@@ -1,11 +1,12 @@
-'use client'; // This MUST be the very first line of the file
+'use client';
 
 import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+// Removed Next.js specific imports to resolve build errors
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
 
 // Import Chart.js components
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2'; // Removed Doughnut as it's unused and caused lint error
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,7 +14,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
+  ArcElement, // Keep ArcElement if Doughnut might be used in other chart types, or remove if not. Keeping for broader chart compatibility.
   Title,
   Tooltip,
   Legend,
@@ -33,30 +34,31 @@ ChartJS.register(
 );
 
 export default function AnalyticsPage() {
-  // const router = useRouter(); // REMOVED: Next.js specific hook
+  // Removed useRouter hook
+  // const router = useRouter();
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      window.location.href = '/login'; // Reverted to window.location.href for redirection
     }
-  }, []); // Removed router from dependency array
+  }, []); // Empty dependency array as router is no longer used
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    window.location.href = '/login'; // Reverted to window.location.href for redirection
   };
 
   // --- Mock Data for Campaign-Focused Analytics ---
 
-  // Campaign-Driven Revenue Trend Data (Retained, re-contextualized)
+  // Campaign-Driven Revenue Trend Data
   const revenueLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const revenueData = {
     labels: revenueLabels,
     datasets: [
       {
-        label: 'Campaign-Driven Monthly Revenue', // CHANGED: Label
+        label: 'Campaign-Driven Monthly Revenue',
         data: [15000, 18000, 22000, 20000, 25000, 28000, 30000, 32000, 35000, 38000, 40000, 42000],
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.5)',
@@ -71,7 +73,7 @@ export default function AnalyticsPage() {
     maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: 'Campaign-Driven Revenue Trend Over Time' }, // CHANGED: Title
+      title: { display: true, text: 'Campaign-Driven Revenue Trend Over Time' },
     },
     scales: {
       x: { grid: { display: false } },
@@ -87,13 +89,13 @@ export default function AnalyticsPage() {
     },
   };
 
-  // Campaign Performance Funnel (Re-contextualized)
+  // Campaign Performance Funnel
   const campaignFunnelData = {
-    labels: ['Messages Sent', 'Messages Opened', 'Links Clicked', 'Conversions'], // CHANGED: Labels
+    labels: ['Messages Sent', 'Messages Opened', 'Links Clicked', 'Conversions'],
     datasets: [
       {
         label: 'Campaign Funnel Stages',
-        data: [50000, 15000, 3000, 500], // Example data for campaign funnel
+        data: [50000, 15000, 3000, 500],
         backgroundColor: [
           'rgba(255, 99, 132, 0.7)',
           'rgba(54, 162, 235, 0.7)',
@@ -117,14 +119,14 @@ export default function AnalyticsPage() {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      title: { display: true, text: 'Campaign Performance Funnel' }, // CHANGED: Title
+      title: { display: true, text: 'Campaign Engagement Funnel' },
     },
     scales: {
       x: {
         beginAtZero: true,
         ticks: {
           callback: function(value: unknown) {
-            return (value as number).toLocaleString(); // Display as raw count
+            return (value as number).toLocaleString();
           }
         }
       },
@@ -144,7 +146,7 @@ export default function AnalyticsPage() {
       linkClicks: 3500,
       revenueGenerated: 15500,
       conversionRate: 2.5,
-      ctr: 23.3, // Calculated as (linkClicks / messagesSent) * 100
+      ctr: 23.3,
       working: true,
     },
     {
@@ -204,7 +206,7 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Campaign Analytics</h1> {/* CHANGED: Title */}
+        <h1 className="text-3xl font-bold text-gray-800">Campaign Analytics</h1>
         <nav>
           <ul className="flex space-x-4">
             <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
@@ -213,7 +215,7 @@ export default function AnalyticsPage() {
             <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
             <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
             <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li>
+            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -230,34 +232,34 @@ export default function AnalyticsPage() {
         {/* Campaign Analytics Overview Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Total Campaigns Launched</p> {/* CHANGED */}
-            <p className="mt-1 text-3xl font-bold text-gray-900">18</p> {/* MOCK DATA */}
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Campaigns Launched</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">18</p>
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 3</span> {/* MOCK DATA */}
+              <span className="mr-1">▲ 3</span>
               <span className="text-gray-500">since last month</span>
             </div>
           </div>
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Total Messages Sent</p> {/* CHANGED */}
-            <p className="mt-1 text-3xl font-bold text-gray-900">250,000</p> {/* MOCK DATA */}
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Messages Sent</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">250,000</p>
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 15%</span> {/* MOCK DATA */}
+              <span className="mr-1">▲ 15%</span>
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Total Link Clicks</p> {/* CHANGED */}
-            <p className="mt-1 text-3xl font-bold text-gray-900">12,500</p> {/* MOCK DATA */}
+            <p className="text-sm font-medium text-gray-500 uppercase">Total Link Clicks</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">12,500</p>
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 10%</span> {/* MOCK DATA */}
+              <span className="mr-1">▲ 10%</span>
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
           <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-            <p className="text-sm font-medium text-gray-500 uppercase">Campaign Conversion Rate</p> {/* CHANGED */}
-            <p className="mt-1 text-3xl font-bold text-gray-900">3.2%</p> {/* MOCK DATA */}
+            <p className="text-sm font-medium text-gray-500 uppercase">Campaign Conversion Rate</p>
+            <p className="mt-1 text-3xl font-bold text-gray-900">3.2%</p>
             <div className="flex items-center text-sm mt-2 text-green-600">
-              <span className="mr-1">▲ 0.4%</span> {/* MOCK DATA */}
+              <span className="mr-1">▲ 0.4%</span>
               <span className="text-gray-500">vs. last month</span>
             </div>
           </div>
@@ -272,16 +274,14 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Campaign Engagement Funnel</h3> {/* CHANGED: Title */}
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Campaign Engagement Funnel</h3>
             <div className="h-full w-full">
-              <Bar data={campaignFunnelData} options={campaignFunnelOptions} /> {/* CHANGED: Data and Options */}
+              <Bar data={campaignFunnelData} options={campaignFunnelOptions} />
             </div>
           </div>
-          {/* REMOVED: Traffic Sources Chart */}
-          {/* REMOVED: Top 5 Products by Revenue Chart */}
         </section>
 
-        {/* Campaign Performance Table (Working vs. Not Working) - NEW SECTION */}
+        {/* Campaign Performance Table (Working vs. Not Working) */}
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Campaign Performance Overview</h2>
             <div className="overflow-x-auto">
@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
                                     <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
                                         campaign.status === 'Active' ? 'text-green-900' :
                                         campaign.status === 'Paused' ? 'text-yellow-900' :
-                                        'text-gray-900' // For Completed/Archived
+                                        'text-gray-900'
                                     }`}>
                                         <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
                                             campaign.status === 'Active' ? 'bg-green-200' :
@@ -365,8 +365,6 @@ export default function AnalyticsPage() {
                 </table>
             </div>
         </section>
-
-        {/* REMOVED: Date Range Selector Section */}
       </main>
 
       <footer className="text-center text-gray-500 mt-8">

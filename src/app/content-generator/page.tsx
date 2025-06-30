@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
-import Link from 'next/link'; // Correct Next.js import for internal links
+// Removed Next.js specific imports to resolve build errors
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
 
 export default function ContentGenerationPage() {
-  const router = useRouter(); // Use Next.js router hook
+  // Removed useRouter hook
+  // const router = useRouter();
   const [tone, setTone] = useState('Friendly');
   const [length, setLength] = useState('Concise');
   const [callToAction, setCallToAction] = useState('Shop Now');
@@ -14,7 +16,7 @@ export default function ContentGenerationPage() {
 
   // Mock content generation function (replace with actual AI API calls)
   const generateSampleMessage = (cohort: string, currentTone: string, currentLength: string, currentCallToAction: string, currentTopic: string, currentKeywords: string) => {
-    let baseMessage = `Here's your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`;
+    const baseMessage = `Here's your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`; // Changed to const to fix lint error
 
     switch (cohort) {
       case 'New Customers':
@@ -46,13 +48,13 @@ export default function ContentGenerationPage() {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login'); // Use router.push for Next.js navigation
+      window.location.href = '/login'; // Reverted to window.location.href for redirection
     }
-  }, [router]);
+  }, []); // Empty dependency array as router is no longer used
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login'); // Use router.push for Next.js navigation
+    window.location.href = '/login'; // Reverted to window.location.href for redirection
   };
 
   // Mock save function (no actual backend interaction in this mockup)
@@ -77,12 +79,12 @@ export default function ContentGenerationPage() {
         <h1 className="text-3xl font-bold text-gray-800">AI Content Generation Hub</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
+            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
+            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
+            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
             {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button

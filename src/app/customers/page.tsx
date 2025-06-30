@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
-import Link from 'next/link'; // Correct Next.js import for internal links
+// Removed Next.js specific imports to resolve build errors
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
 
 // Mock customer data (replace with API calls in a real application)
 const mockCustomers = [
@@ -27,20 +28,21 @@ const formatDate = (dateString: string | null) => {
 const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
 export default function CustomersPage() {
-  const router = useRouter(); // Use Next.js router hook
-  const [customers, setCustomers] = useState(mockCustomers); // useState is used for filtering, so it's not unused
+  // Removed useRouter hook
+  // const router = useRouter();
+  const [customers, setCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login'); // Use router.push for Next.js navigation
+      window.location.href = '/login'; // Reverted to window.location.href for redirection
     }
-  }, [router]);
+  }, []); // Empty dependency array as router is no longer used
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login'); // Use router.push for Next.js navigation
+    window.location.href = '/login'; // Reverted to window.location.href for redirection
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,12 +61,12 @@ export default function CustomersPage() {
         <h1 className="text-3xl font-bold text-gray-800">Customers</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 font-semibold underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="/customers" className="text-blue-600 font-semibold underline">Customers</a></li>
+            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
+            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
+            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
             {/* Monthly Goals link removed from top navigation as per Dashboard consistency */}
             <li>
               <button
