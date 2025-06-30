@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
 // Mock customer data (replace with API calls in a real application)
-// ADDED: phone number and repeat purchase count
 const mockCustomers = [
   { id: 1, name: 'Alice Wonderland', email: 'alice@example.com', phone: '+1-555-123-4567', segment: 'High-Value VIPs', lastPurchase: '2025-06-10', totalSpent: 1250.50, repeatPurchaseCount: 3 },
   { id: 2, name: 'Bob The Builder', email: 'bob@example.com', phone: '+1-555-234-5678', segment: 'Recent Purchasers', lastPurchase: '2025-06-13', totalSpent: 75.00, repeatPurchaseCount: 1 },
@@ -28,29 +27,28 @@ const formatDate = (dateString: string | null) => {
 const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
 export default function CustomersPage() {
-  // const router = useRouter(); // REMOVED: Next.js specific hook
-  const [customers, setCustomers] = useState(mockCustomers);
+  const router = useRouter(); // Use Next.js router hook
+  const [customers, setCustomers] = useState(mockCustomers); // useState is used for filtering, so it's not unused
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      router.push('/login'); // Use router.push for Next.js navigation
     }
-  }, []); // Removed router from dependency array
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-    // In a real application, you would filter the customer data based on the search term
     const filteredCustomers = mockCustomers.filter(customer =>
       customer.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
       customer.email.toLowerCase().includes(event.target.value.toLowerCase()) ||
-      (customer.phone && customer.phone.toLowerCase().includes(event.target.value.toLowerCase())) // ADDED: Search by phone number
+      (customer.phone && customer.phone.toLowerCase().includes(event.target.value.toLowerCase()))
     );
     setCustomers(filteredCustomers);
   };
@@ -61,13 +59,13 @@ export default function CustomersPage() {
         <h1 className="text-3xl font-bold text-gray-800">Customers</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/customers" className="text-blue-600 font-semibold underline">Customers</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li> {/* CHANGED: Link to a */}
-            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li> {/* ADDED: Link to Monthly Goals */}
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 font-semibold underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            {/* Monthly Goals link removed from top navigation as per Dashboard consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -111,7 +109,7 @@ export default function CustomersPage() {
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Phone
-                </th> {/* ADDED: Phone column header */}
+                </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Segment
                 </th>
@@ -123,8 +121,7 @@ export default function CustomersPage() {
                 </th>
                 <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Repeat Customer
-                </th> {/* ADDED: Repeat Customer column header */}
-                {/* REMOVED: Actions column header */}
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -137,7 +134,7 @@ export default function CustomersPage() {
                     <p className="text-gray-900 whitespace-no-wrap">{customer.email}</p>
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{customer.phone}</p> {/* ADDED: Phone data cell */}
+                    <p className="text-gray-900 whitespace-no-wrap">{customer.phone}</p>
                   </td>
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
                     <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
@@ -154,9 +151,8 @@ export default function CustomersPage() {
                   <td className="px-5 py-5 border-b border-gray-200 text-sm">
                     <p className="text-gray-900 whitespace-no-wrap">
                       {customer.repeatPurchaseCount > 1 ? `Yes (${customer.repeatPurchaseCount})` : 'No'}
-                    </p> {/* ADDED: Repeat Customer data cell */}
+                    </p>
                   </td>
-                  {/* REMOVED: Actions column data cell */}
                 </tr>
               ))}
             </tbody>

@@ -1,28 +1,25 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
 export default function SettingsPage() {
-  // const router = useRouter(); // REMOVED: Next.js specific hook
-  // State to manage which setting section is active
+  const router = useRouter(); // Use Next.js router hook
   const [activeSection, setActiveSection] = useState('general');
-  // State to manage the open/close state of the Account & Billing dropdown
   const [isBillingDropdownOpen, setIsBillingDropdownOpen] = useState(false);
-
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      router.push('/login'); // Use router.push for Next.js navigation
     }
-  }, []); // Removed router from dependency array
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
   // Dummy state for various settings (replace with actual state management/API calls)
@@ -42,7 +39,6 @@ export default function SettingsPage() {
   // Function to simulate saving settings
   const handleSaveSettings = (section: string) => {
     alert(`Settings saved for ${section}! (This is a mock save)`);
-    // In a real application, you would send this data to your backend API
     console.log(`Saving ${section} settings:`, {
       companyName, emailAddress, ecommercePlatform, twilioApiKey, sendgridApiKey,
       aiTone, aiCreativity, dailySendTime, freqCapDays, dataSyncFrequency,
@@ -56,13 +52,13 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-gray-800">Account Settings</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 font-semibold underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 font-semibold underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -163,20 +159,20 @@ export default function SettingsPage() {
               {isBillingDropdownOpen && (
                 <ul className="pl-4 mt-1 space-y-1">
                   <li>
-                    <a
+                    <Link
                       href="/settings/billing/manage-subscription"
                       className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
                     >
                       Manage Subscription
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       href="/settings/billing/history"
                       className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
                     >
                       View Billing History
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               )}
@@ -217,7 +213,6 @@ export default function SettingsPage() {
                 >
                   Save General Settings
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     Clicking 'Save General Settings' will update your core company contact and information across the system. These changes will reflect immediately.
                 </p>
@@ -273,7 +268,6 @@ export default function SettingsPage() {
                 >
                   Save Integrations
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     Clicking 'Save Integrations' will update API keys and platform connections. Incorrect keys may disrupt campaign sending or data sync.
                 </p>
@@ -331,7 +325,6 @@ export default function SettingsPage() {
                 >
                   Save AI & Content Settings
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     Saving these settings will influence the tone, creativity, and keyword usage of all future AI-generated content.
                 </p>
@@ -383,7 +376,6 @@ export default function SettingsPage() {
                 >
                   Save Automation Defaults
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     These settings define the default behavior for new automated campaigns. Changes will apply to future campaigns but not modify existing ones unless explicitly updated.
                 </p>
@@ -430,7 +422,6 @@ export default function SettingsPage() {
                 >
                   Save Data & Segmentation Settings
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     Changes to data and segmentation settings affect how customer data is processed and organized for targeting. Data retention changes may impact compliance.
                 </p>
@@ -483,7 +474,6 @@ export default function SettingsPage() {
                 >
                   Save Notification Settings
                 </button>
-                 {/* Explanation for Save button */}
                  <p className="text-sm text-gray-500 mt-2 p-2 bg-gray-50 rounded-md border border-gray-200">
                     Saving these notification preferences will update how and when you receive alerts about your campaigns and account status.
                 </p>
@@ -502,7 +492,6 @@ export default function SettingsPage() {
                   <p className="text-sm mt-1">Usage: 80% of monthly SMS credits used</p>
                   <p className="text-sm mt-1">For detailed information, please use the links in the sidebar.</p>
                 </div>
-                {/* No save button here as the sub-sections handle navigation */}
               </div>
             </section>
           )}

@@ -1,18 +1,16 @@
-'use client'; // This MUST be the very first line of the file
+'use client';
 
-import React, { useState, useEffect } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
-export default function ContentGenerationPage() { // CHANGED: Component name from BrandGuidePage
-  // const router = useRouter(); // REMOVED: Next.js specific hook
-
-  // State for AI Content Customization options
-  const [tone, setTone] = useState('Friendly'); // Changed from impactLevel/formalityLevel
-  const [length, setLength] = useState('Concise'); // New parameter
-  const [callToAction, setCallToAction] = useState('Shop Now'); // New parameter
-  const [topic, setTopic] = useState('New Product Launch'); // New parameter
-  const [keywords, setKeywords] = useState('innovative, user-friendly, efficient'); // Kept from original
+export default function ContentGenerationPage() {
+  const router = useRouter(); // Use Next.js router hook
+  const [tone, setTone] = useState('Friendly');
+  const [length, setLength] = useState('Concise');
+  const [callToAction, setCallToAction] = useState('Shop Now');
+  const [topic, setTopic] = useState('New Product Launch');
+  const [keywords, setKeywords] = useState('innovative, user-friendly, efficient');
 
   // Mock content generation function (replace with actual AI API calls)
   const generateSampleMessage = (cohort: string, currentTone: string, currentLength: string, currentCallToAction: string, currentTopic: string, currentKeywords: string) => {
@@ -48,13 +46,13 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      router.push('/login'); // Use router.push for Next.js navigation
     }
-  }, []); // Removed router from dependency array
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
   // Mock save function (no actual backend interaction in this mockup)
@@ -70,23 +68,22 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
         message: generateSampleMessage(cohort, tone, length, callToAction, topic, keywords)
       }))
     });
-    // In a real app, you'd send this to an API that would then save it to your database
     alert('Content generated and saved! (This is a mockup)');
   };
 
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">AI Content Generation Hub</h1> {/* CHANGED: Title */}
+        <h1 className="text-3xl font-bold text-gray-800">AI Content Generation Hub</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            <li><a href="/monthly-goals" className="text-blue-600 hover:underline">Monthly Goals</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -99,7 +96,7 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
         </nav>
       </header>
 
-      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8"> {/* CHANGED: Layout to 2 columns for parameters and previews */}
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column: Content Generation Parameters */}
         <section className="bg-white p-8 rounded-lg shadow-md border border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Configure AI Generation Parameters</h2>
@@ -148,7 +145,7 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
 
           {/* Call to Action */}
           <div className="mb-6">
-            <label htmlFor="callToAction" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="callToAction" className="block text-sm font-medium text-gray-700 mb-2">
               Call to Action:
             </label>
             <input
@@ -166,7 +163,7 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
 
           {/* Topic */}
           <div className="mb-6">
-            <label htmlFor="topic" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-2">
               Main Topic/Goal:
             </label>
             <input
@@ -184,7 +181,7 @@ export default function ContentGenerationPage() { // CHANGED: Component name fro
 
           {/* Keywords */}
           <div className="mb-6">
-            <label htmlFor="keywords" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-2">
               Key Keywords (comma-separated):
             </label>
             <input

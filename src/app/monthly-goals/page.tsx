@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation'; // Removed for general React compatibility
-// import Link from 'next/link'; // Removed for general React compatibility
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
 interface MonthlyGoal {
   id: string;
@@ -14,7 +14,7 @@ interface MonthlyGoal {
 }
 
 export default function MonthlyGoalsPage() {
-  // const router = useRouter(); // Removed
+  const router = useRouter(); // Use Next.js router hook
   const [goals, setGoals] = useState<MonthlyGoal[]>([]);
   const [newMonth, setNewMonth] = useState('');
   const [newYear, setNewYear] = useState(new Date().getFullYear());
@@ -26,7 +26,7 @@ export default function MonthlyGoalsPage() {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // Changed for general React compatibility
+      router.push('/login'); // Use router.push for Next.js navigation
     }
 
     // Load mock goals or fetch from a mock API
@@ -57,11 +57,11 @@ export default function MonthlyGoalsPage() {
       },
     ];
     setGoals(initialGoals);
-  }, []);
+  }, [router]); // Include router in dependency array
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Changed for general React compatibility
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
   const handleAddGoal = (e: React.FormEvent) => {
@@ -81,9 +81,9 @@ export default function MonthlyGoalsPage() {
       setNewYear(new Date().getFullYear());
       setNewRevenueGoal(0);
       setNewCustomerAcquisitionGoal(0);
-      alert('Monthly goal added!');
+      alert('Monthly goal added!'); // Retaining alert as per original code behavior for mockup
     } else {
-      alert('Please fill in all goal fields correctly.');
+      alert('Please fill in all goal fields correctly.'); // Retaining alert
     }
   };
 
@@ -114,14 +114,14 @@ export default function MonthlyGoalsPage() {
       setNewYear(new Date().getFullYear());
       setNewRevenueGoal(0);
       setNewCustomerAcquisitionGoal(0);
-      alert('Monthly goal updated!');
+      alert('Monthly goal updated!'); // Retaining alert
     }
   };
 
   const handleDeleteGoal = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this goal?')) {
+    if (window.confirm('Are you sure you want to delete this goal?')) { // Retaining window.confirm
       setGoals(goals.filter(goal => goal.id !== id));
-      alert('Monthly goal deleted!');
+      alert('Monthly goal deleted!'); // Retaining alert
     }
   };
 
@@ -130,19 +130,24 @@ export default function MonthlyGoalsPage() {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  const formatDateString = (dateString: string) => { // Renamed to avoid conflict with `formatDate` from other files
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800">Monthly Goals</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            <li><a href="/monthly-goals" className="text-blue-600 font-semibold underline">Monthly Goals</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            {/* Monthly Goals link removed from top navigation as per Dashboard consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -282,7 +287,7 @@ export default function MonthlyGoalsPage() {
                       <p className="text-gray-900 whitespace-no-wrap">{goal.customerAcquisitionGoal.toLocaleString()}</p>
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{new Date(goal.dateSet).toLocaleDateString()}</p>
+                      <p className="text-gray-900 whitespace-no-wrap">{formatDateString(goal.dateSet)}</p>
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
                       <button

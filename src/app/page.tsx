@@ -1,8 +1,8 @@
-'use client'; // This MUST be the very first line of the file
+'use client';
 
 import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
 // Import Chart.js components
 import { Line, Bar } from 'react-chartjs-2';
@@ -31,19 +31,19 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
-  // const router = useRouter(); // REMOVED: Next.js specific hook
+  const router = useRouter(); // Use Next.js router hook
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      router.push('/login'); // Use router.push for Next.js navigation
     }
-  }, []); // Removed router from dependency array as it's no longer used
+  }, [router]); // Include router in dependency array
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
   // --- Mock Data for Dashboard Cards ---
@@ -61,14 +61,13 @@ export default function DashboardPage() {
   const campaignPerformanceLabels = Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`);
 
   const generateSegmentData = (base: number, volatility: number, trend: number) => {
-    // This data will now represent 'Purchases'
     return Array.from({ length: 30 }, (_, i) => {
       const value = base + Math.sin(i * 0.4) * volatility + (i * trend);
-      return Math.max(0, Math.round(value + Math.random() * 5)); // Smaller numbers for 'purchases'
+      return Math.max(0, Math.round(value + Math.random() * 5));
     });
   };
 
-  const highValueVIPsData = generateSegmentData(10, 5, 1); // Mock data now represents purchases
+  const highValueVIPsData = generateSegmentData(10, 5, 1);
   const recentPurchasersData = generateSegmentData(8, 4, 0.5);
   const churnRisksData = generateSegmentData(3, 2, -0.1);
   const newSignupsData = generateSegmentData(5, 3, 0.2);
@@ -77,33 +76,33 @@ export default function DashboardPage() {
     labels: campaignPerformanceLabels,
     datasets: [
       {
-        label: 'High-Value VIPs (Purchases)', // Updated label
+        label: 'High-Value VIPs (Purchases)',
         data: highValueVIPsData,
-        borderColor: 'rgb(75, 192, 192)', // Teal
+        borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         tension: 0.4,
         fill: true,
       },
       {
-        label: 'Recent Purchasers (Purchases)', // Updated label
+        label: 'Recent Purchasers (Purchases)',
         data: recentPurchasersData,
-        borderColor: 'rgb(153, 102, 255)', // Purple
+        borderColor: 'rgb(153, 102, 255)',
         backgroundColor: 'rgba(153, 102, 255, 0.2)',
         tension: 0.4,
         fill: true,
       },
       {
-        label: 'Churn Risks (Purchases)', // Updated label
+        label: 'Churn Risks (Purchases)',
         data: churnRisksData,
-        borderColor: 'rgb(255, 99, 132)', // Red
+        borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         tension: 0.4,
         fill: true,
       },
       {
-        label: 'New Sign-ups (Purchases)', // Updated label
+        label: 'New Sign-ups (Purchases)',
         data: newSignupsData,
-        borderColor: 'rgb(54, 162, 235)', // Blue
+        borderColor: 'rgb(54, 162, 235)',
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         tension: 0.4,
         fill: true,
@@ -121,7 +120,7 @@ export default function DashboardPage() {
       },
       title: {
         display: true,
-        text: 'Campaign Performance by Customer Segment (Total Purchases)', // Updated title
+        text: 'Campaign Performance by Customer Segment (Total Purchases)',
         font: { size: 18 },
         color: '#333'
       },
@@ -139,7 +138,7 @@ export default function DashboardPage() {
   };
 
   // --- Mock Data for Total Revenue vs. Goal Graph (Bar Chart) ---
-  const revenueGoalLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']; // Example months
+  const revenueGoalLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
   const actualRevenueData = [15000, 18000, 22000, 20000, 25000, 28000];
   const targetRevenueData = [16000, 19000, 21000, 23000, 26000, 29000];
 
@@ -149,14 +148,14 @@ export default function DashboardPage() {
       {
         label: 'Actual Revenue',
         data: actualRevenueData,
-        backgroundColor: 'rgba(75, 192, 192, 0.8)', // Teal bars
+        backgroundColor: 'rgba(75, 192, 192, 0.8)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
       {
         label: 'Target Revenue',
         data: targetRevenueData,
-        backgroundColor: 'rgba(153, 102, 255, 0.8)', // Purple bars
+        backgroundColor: 'rgba(153, 102, 255, 0.8)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 1,
       },
@@ -196,13 +195,13 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 font-semibold underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            {/* REMOVED: Monthly Goals link from top navigation as requested */}
+            <li><Link href="/" className="text-blue-600 font-semibold underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
+            {/* Monthly Goals link intentionally removed from top navigation as per user's specific request */}
             <li>
               <button
                 onClick={handleLogout}
@@ -247,14 +246,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Total Revenue vs. Goal Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96 relative"> {/* ADDED relative for button positioning */}
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96 relative">
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Total Revenue vs. Goal</h3>
             <div className="h-full w-full">
               <Bar data={revenueGoalData} options={revenueGoalOptions} />
             </div>
-            {/* NEW: Button to Monthly Goals Screen */}
+            {/* Button to Monthly Goals Screen */}
             <div className="absolute bottom-4 right-4">
-                <a
+                <Link
                   href="/monthly-goals"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                 >
@@ -262,7 +261,7 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h4m-4 4h4m-5 4h10a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Set Monthly Goals
-                </a>
+                </Link>
             </div>
           </div>
         </section>
@@ -284,7 +283,7 @@ export default function DashboardPage() {
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Content Generation Hub</h2>
           <p className="text-gray-600 mb-4">Leverage AI to create tailored marketing messages for various customer cohorts.</p>
-          <a
+          <Link
             href="/content-generator"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
@@ -292,7 +291,7 @@ export default function DashboardPage() {
               <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.28 7.22a.75.75 0 00-1.06 1.06L9.94 10l-2.72 2.72a.75.75 0 101.06 1.06L11 11.06l2.72 2.72a.75.75 0 101.06-1.06L12.06 10l2.72-2.72a.75.75 0 00-1.06-1.06L11 8.94l-2.72-2.72z" />
             </svg>
             Generate AI Content
-          </a>
+          </Link>
         </section>
 
 
@@ -318,7 +317,7 @@ export default function DashboardPage() {
             </li>
           </ul>
           <div className="mt-4 text-right">
-            <a href="/activities" className="text-blue-600 hover:underline text-sm">View all activities</a>
+            <Link href="/activities" className="text-blue-600 hover:underline text-sm">View all activities</Link>
           </div>
         </section>
       </main>

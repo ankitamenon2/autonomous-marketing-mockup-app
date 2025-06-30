@@ -1,208 +1,95 @@
-'use client'; // This MUST be the very first line of the file
+'use client';
 
-import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVED: Next.js specific import
-// import Link from 'next/link'; // REMOVED: Next.js specific import
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
+import Link from 'next/link'; // Correct Next.js import for internal links
 
-// Import Chart.js components
-import { Line, Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
+export default function CreateCampaignPage() {
+  const router = useRouter(); // Use Next.js router hook
+  const [step, setStep] = useState(1);
 
-// Register Chart.js components. Crucial for Chart.js v3+
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+  // Form states for Campaign Details
+  const [campaignName, setCampaignName] = useState('');
+  const [campaignType, setCampaignType] = useState('Email');
+  const [campaignDescription, setCampaignDescription] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-export default function DashboardPage() {
-  // const router = useRouter(); // REMOVED: Next.js specific hook
+  // Form states for Audience
+  const [targetAudienceType, setTargetAudienceType] = useState('All Customers');
+  const [minTotalSpent, setMinTotalSpent] = useState(0);
+  const [lastPurchaseDaysAgo, setLastPurchaseDaysAgo] = useState(0);
+
+  // Form states for Content & Budget
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [callToActionLink, setCallToActionLink] = useState('');
+  const [budget, setBudget] = useState(0);
+  const [campaignGoal, setCampaignGoal] = useState('Conversions');
 
   // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // CHANGED: Use window.location for redirection
+      router.push('/login'); // Use router.push for Next.js navigation
     }
-  }, []); // Removed router from dependency array as it's no longer used
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // CHANGED: Use window.location for redirection
+    router.push('/login'); // Use router.push for Next.js navigation
   };
 
-  // --- Mock Data for Dashboard Cards ---
-  const overviewMetrics = {
-    campaignsActive: { value: 12, label: 'Active Campaigns', trend: 'up', change: 2 },
-    customersEngaged: { value: 7800, label: 'Customers Engaged', trend: 'up', change: 15 },
-    conversionRate: { value: 3.5, label: 'Conversion Rate', trend: 'up', change: 0.5 },
-    totalRevenue: { value: 125000, label: 'Total Revenue', trend: 'up', change: 10 },
+  const handleNextStep = () => {
+    // Basic validation for current step before moving on
+    if (step === 1) {
+      if (!campaignName || !campaignType || !startDate || !endDate) {
+        alert('Please fill in all campaign details.'); // Retaining alert for mockup
+        return;
+      }
+    }
+    setStep(step + 1);
   };
 
-  const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
-  const formatPercentage = (value: number) => `${value}%`;
+  const handlePrevStep = () => {
+    setStep(step - 1);
+  };
 
-  // --- Mock Data for Campaign Performance Graph (Multiple Segments) ---
-  const campaignPerformanceLabels = Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`);
-
-  const generateSegmentData = (base: number, volatility: number, trend: number) => {
-    // This data will now represent 'Purchases'
-    return Array.from({ length: 30 }, (_, i) => {
-      const value = base + Math.sin(i * 0.4) * volatility + (i * trend);
-      return Math.max(0, Math.round(value + Math.random() * 5)); // Smaller numbers for 'purchases'
+  const handleSubmitCampaign = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real application, send all collected data to a backend API
+    console.log('New Campaign Data:', {
+      campaignName,
+      campaignType,
+      campaignDescription,
+      startDate,
+      endDate,
+      targetAudienceType,
+      minTotalSpent,
+      lastPurchaseDaysAgo,
+      messageSubject,
+      messageBody,
+      callToActionLink,
+      budget,
+      campaignGoal,
     });
+    alert('Campaign Created Successfully! (Mock submission)'); // Retaining alert
+    router.push('/campaigns'); // Use router.push for Next.js navigation
   };
-
-  const highValueVIPsData = generateSegmentData(10, 5, 1); // Mock data now represents purchases
-  const recentPurchasersData = generateSegmentData(8, 4, 0.5);
-  const churnRisksData = generateSegmentData(3, 2, -0.1);
-  const newSignupsData = generateSegmentData(5, 3, 0.2);
-
-  const campaignPerformanceData = {
-    labels: campaignPerformanceLabels,
-    datasets: [
-      {
-        label: 'High-Value VIPs (Purchases)', // Updated label
-        data: highValueVIPsData,
-        borderColor: 'rgb(75, 192, 192)', // Teal
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: 'Recent Purchasers (Purchases)', // Updated label
-        data: recentPurchasersData,
-        borderColor: 'rgb(153, 102, 255)', // Purple
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: 'Churn Risks (Purchases)', // Updated label
-        data: churnRisksData,
-        borderColor: 'rgb(255, 99, 132)', // Red
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: 'New Sign-ups (Purchases)', // Updated label
-        data: newSignupsData,
-        borderColor: 'rgb(54, 162, 235)', // Blue
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  const campaignPerformanceOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-        labels: { font: { size: 14 } }
-      },
-      title: {
-        display: true,
-        text: 'Campaign Performance by Customer Segment (Total Purchases)', // Updated title
-        font: { size: 18 },
-        color: '#333'
-      },
-      tooltip: { mode: 'index' as const, intersect: false },
-    },
-    hover: { mode: 'nearest' as const, intersect: true },
-    scales: {
-      x: { grid: { display: false }, title: { display: true, text: 'Day', font: { size: 14 } } },
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(200, 200, 200, 0.2)' },
-        title: { display: true, text: 'Number of Purchases', font: { size: 14 } }
-      },
-    },
-  };
-
-  // --- Mock Data for Total Revenue vs. Goal Graph (Bar Chart) ---
-  const revenueGoalLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']; // Example months
-  const actualRevenueData = [15000, 18000, 22000, 20000, 25000, 28000];
-  const targetRevenueData = [16000, 19000, 21000, 23000, 26000, 29000];
-
-  const revenueGoalData = {
-    labels: revenueGoalLabels,
-    datasets: [
-      {
-        label: 'Actual Revenue',
-        data: actualRevenueData,
-        backgroundColor: 'rgba(75, 192, 192, 0.8)', // Teal bars
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1,
-      },
-      {
-        label: 'Target Revenue',
-        data: targetRevenueData,
-        backgroundColor: 'rgba(153, 102, 255, 0.8)', // Purple bars
-        borderColor: 'rgba(153, 102, 255, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const revenueGoalOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'top' as const },
-      title: {
-        display: true,
-        text: 'Total Revenue vs. Goal',
-        font: { size: 18 },
-        color: '#333'
-      },
-    },
-    scales: {
-      x: { grid: { display: false } },
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(200, 200, 200, 0.2)' },
-        ticks: {
-          callback: function(value: unknown) {
-            return '$' + (value as number).toLocaleString();
-          }
-        },
-      },
-    },
-  };
-
 
   return (
-    <div className="min-h-screen bg-indigo-50 p-8 font-sans">
+    <div className="min-h-screen bg-gray-100 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Create New Campaign</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 font-semibold underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            {/* REMOVED: Monthly Goals link from top navigation as requested */}
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</Link></li>
+            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -215,112 +102,251 @@ export default function DashboardPage() {
         </nav>
       </header>
 
-      <main>
-        {/* Overview Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {Object.entries(overviewMetrics).map(([key, metric]) => (
-            <div key={key} className="bg-gradient-to-br from-white to-blue-50 p-5 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm font-medium text-gray-500 uppercase">{metric.label}</p>
-              <p className="mt-1 text-3xl font-bold text-gray-900">
-                {key.includes('Revenue') ? formatCurrency(metric.value) : key.includes('Rate') ? formatPercentage(metric.value) : metric.value.toLocaleString()}
-              </p>
-              <div className="flex items-center text-sm mt-2">
-                <span className={`mr-1 ${metric.trend === 'up' ? 'text-green-600' : metric.trend === 'down' ? 'text-red-600' : 'text-gray-500'}`}>
-                  {metric.trend === 'up' && '▲ '}
-                  {metric.trend === 'down' && '▼ '}
-                  {metric.change !== 0 ? `${metric.change}${key.includes('Rate') ? '%' : ''}` : ''}
-                </span>
-                <span className="text-gray-500">vs. last month</span>
+      <main className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+        <div className="mb-6">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span className={`px-3 py-1 rounded-full ${step >= 1 ? 'bg-indigo-200 text-indigo-800' : 'bg-gray-200'}`}>1. Campaign Details</span>
+            <span className="h-0.5 w-8 bg-gray-300 mx-2"></span>
+            <span className={`px-3 py-1 rounded-full ${step >= 2 ? 'bg-indigo-200 text-indigo-800' : 'bg-gray-200'}`}>2. Audience Targeting</span>
+            <span className="h-0.5 w-8 bg-gray-300 mx-2"></span>
+            <span className={`px-3 py-1 rounded-full ${step >= 3 ? 'bg-indigo-200 text-indigo-800' : 'bg-gray-200'}`}>3. Content & Budget</span>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmitCampaign} className="space-y-6">
+          {/* Step 1: Campaign Details */}
+          {step === 1 && (
+            <section>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Campaign Details</h2>
+              <div>
+                <label htmlFor="campaignName" className="block text-sm font-medium text-gray-700 mb-1">Campaign Name</label>
+                <input
+                  type="text"
+                  id="campaignName"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="e.g., Summer Flash Sale"
+                  required
+                />
               </div>
-            </div>
-          ))}
-        </section>
-
-        {/* Charts Section */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Campaign Performance Graph */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Campaign Performance by Customer Segment</h3>
-            <div className="h-full w-full">
-              <Line data={campaignPerformanceData} options={campaignPerformanceOptions} />
-            </div>
-          </div>
-
-          {/* Total Revenue vs. Goal Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 h-96 relative"> {/* ADDED relative for button positioning */}
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Total Revenue vs. Goal</h3>
-            <div className="h-full w-full">
-              <Bar data={revenueGoalData} options={revenueGoalOptions} />
-            </div>
-            {/* NEW: Button to Monthly Goals Screen */}
-            <div className="absolute bottom-4 right-4">
-                <a
-                  href="/monthly-goals"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              <div>
+                <label htmlFor="campaignType" className="block text-sm font-medium text-gray-700 mb-1">Campaign Type</label>
+                <select
+                  id="campaignType"
+                  value={campaignType}
+                  onChange={(e) => setCampaignType(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  required
                 >
-                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h4m-4 4h4m-5 4h10a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Set Monthly Goals
-                </a>
-            </div>
-          </div>
-        </section>
+                  <option value="Email">Email</option>
+                  <option value="SMS">SMS</option>
+                  <option value="Push Notification">Push Notification</option>
+                  <option value="In-App Message">In-App Message</option>
+                  <option value="Social Media">Social Media Post</option>
+                  <option value="Automation">Automated Series</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="campaignDescription" className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <textarea
+                  id="campaignDescription"
+                  rows={3}
+                  value={campaignDescription}
+                  onChange={(e) => setCampaignDescription(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Briefly describe the campaign's purpose."
+                ></textarea>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    required
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleNextStep}
+                className="mt-6 px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 float-right"
+              >
+                Next: Audience
+              </button>
+            </section>
+          )}
 
-        {/* Campaign Recommendations Section */}
-        <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Campaign Recommendations to Meet Goals</h2>
-          <p className="text-gray-600 mb-4">Based on your current performance and set goals, here are some campaign strategies to consider:</p>
-          <ul className="list-disc list-inside text-gray-700 space-y-2">
-            <li>**Launch a Flash Sale for High-Value Products:** Target VIP customers with exclusive, time-sensitive discounts to boost immediate revenue.</li>
-            <li>**Re-engagement Campaign for Churn Risks:** Send personalized offers or content to customers identified as churn risks to encourage repeat purchases.</li>
-            <li>**Upsell/Cross-sell to Recent Purchasers:** Introduce complementary products or premium tiers to customers who have recently made a purchase.</li>
-            <li>**Welcome Series with a Strong First-Purchase Incentive:** Optimize your onboarding campaigns for new sign-ups to convert them into first-time buyers more quickly.</li>
-            <li>**Optimize Ad Spend on Best-Performing Channels:** Reallocate budget towards channels and campaigns that have historically shown the highest ROI.</li>
-          </ul>
-        </section>
+          {/* Step 2: Audience Targeting */}
+          {step === 2 && (
+            <section>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Audience Targeting</h2>
+              <div>
+                <label htmlFor="targetAudienceType" className="block text-sm font-medium text-gray-700 mb-1">Target Audience</label>
+                <select
+                  id="targetAudienceType"
+                  value={targetAudienceType}
+                  onChange={(e) => setTargetAudienceType(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="All Customers">All Customers</option>
+                  <option value="New Sign-ups (Last 30 Days)">New Sign-ups (Last 30 Days)</option>
+                  <option value="High-Value VIPs">High-Value VIPs</option>
+                  <option value="Cart Abandoners (Last 24h)">Cart Abandoners (Last 24h)</option>
+                  <option value="Inactive Users (90+ Days)">Inactive Users (90+ Days)</option>
+                  <option value="Custom Segment">Custom Segment (define below)</option>
+                </select>
+                <p className="text-sm text-gray-500 mt-1">Select a predefined segment or define custom criteria.</p>
+              </div>
 
-        {/* Content Generation Link Section */}
-        <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Content Generation Hub</h2>
-          <p className="text-gray-600 mb-4">Leverage AI to create tailored marketing messages for various customer cohorts.</p>
-          <a
-            href="/content-generator"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.28 7.22a.75.75 0 00-1.06 1.06L9.94 10l-2.72 2.72a.75.75 0 101.06 1.06L11 11.06l2.72 2.72a.75.75 0 101.06-1.06L12.06 10l2.72-2.72a.75.75 0 00-1.06-1.06L11 8.94l-2.72-2.72z" />
-            </svg>
-            Generate AI Content
-          </a>
-        </section>
+              {targetAudienceType === 'Custom Segment' && (
+                <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50 space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-700">Custom Segment Criteria</h3>
+                  <div>
+                    <label htmlFor="minTotalSpent" className="block text-sm font-medium text-gray-700 mb-1">Minimum Total Spent ($)</label>
+                    <input
+                      type="number"
+                      id="minTotalSpent"
+                      value={minTotalSpent}
+                      onChange={(e) => setMinTotalSpent(Number(e.target.value))}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastPurchaseDaysAgo" className="block text-sm font-medium text-gray-700 mb-1">Last Purchase (Days Ago)</label>
+                    <input
+                      type="number"
+                      id="lastPurchaseDaysAgo"
+                      value={lastPurchaseDaysAgo}
+                      onChange={(e) => setLastPurchaseDaysAgo(Number(e.target.value))}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      min="0"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Target customers who haven't purchased in this many days (e.g., 90 for inactive).</p>
+                  </div>
+                </div>
+              )}
 
+              <div className="flex justify-between mt-6">
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  className="px-6 py-3 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Next: Content
+                </button>
+              </div>
+            </section>
+          )}
 
-        {/* Recent Activities Feed (mock) */}
-        <section className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Activities</h2>
-          <ul className="divide-y divide-gray-200">
-            <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">Campaign &quot;Summer Sale&quot; launched.</span>
-              <span className="text-gray-500">2 hours ago</span>
-            </li>
-            <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">10 new customers added to &quot;New Sign-ups&quot; segment.</span>
-              <span className="text-gray-500">Yesterday</span>
-            </li>
-            <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">Email sequence &quot;Welcome Series&quot; completed for 50 users.</span>
-              <span className="text-gray-500">2 days ago</span>
-            </li>
-            <li className="py-3 flex justify-between items-center text-sm">
-              <span className="text-gray-700">Low stock alert for Product X triggered.</span>
-              <span className="text-gray-500">3 days ago</span>
-            </li>
-          </ul>
-          <div className="mt-4 text-right">
-            <a href="/activities" className="text-blue-600 hover:underline text-sm">View all activities</a>
-          </div>
-        </section>
+          {/* Step 3: Content & Budget */}
+          {step === 3 && (
+            <section>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Content & Budget</h2>
+              <div>
+                <label htmlFor="messageSubject" className="block text-sm font-medium text-gray-700 mb-1">Message Subject (for Email/Push)</label>
+                <input
+                  type="text"
+                  id="messageSubject"
+                  value={messageSubject}
+                  onChange={(e) => setMessageSubject(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="e.g., Your Summer Sale Savings Are Here!"
+                />
+              </div>
+              <div>
+                <label htmlFor="messageBody" className="block text-sm font-medium text-gray-700 mb-1">Message Body</label>
+                <textarea
+                  id="messageBody"
+                  rows={8}
+                  value={messageBody}
+                  onChange={(e) => setMessageBody(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Compose your campaign message here. Use AI Content Generation for help!"
+                ></textarea>
+                <Link href="/content-generator" target="_blank" className="text-sm text-blue-600 hover:underline mt-1 block"> {/* Use Link for external pages opens in new tab */}
+                  Open AI Content Generator <span aria-hidden="true">&rarr;</span>
+                </Link>
+              </div>
+              <div>
+                <label htmlFor="callToActionLink" className="block text-sm font-medium text-gray-700 mb-1">Call to Action Link (URL)</label>
+                <input
+                  type="url"
+                  id="callToActionLink"
+                  value={callToActionLink}
+                  onChange={(e) => setCallToActionLink(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="e.g., https://yourstore.com/sale"
+                />
+              </div>
+              <div>
+                <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">Campaign Budget ($)</label>
+                <input
+                  type="number"
+                  id="budget"
+                  value={budget}
+                  onChange={(e) => setBudget(Number(e.target.value))}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  min="0"
+                />
+                <p className="text-sm text-gray-500 mt-1">Allocate budget for paid campaigns (e.g., SMS cost, ad spend).</p>
+              </div>
+              <div>
+                <label htmlFor="campaignGoal" className="block text-sm font-medium text-gray-700 mb-1">Primary Campaign Goal</label>
+                <select
+                  id="campaignGoal"
+                  value={campaignGoal}
+                  onChange={(e) => setCampaignGoal(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="Conversions">Conversions (Purchases)</option>
+                  <option value="Engagement">Engagement (Clicks/Opens)</option>
+                  <option value="Awareness">Brand Awareness</option>
+                  <option value="Lead Generation">Lead Generation</option>
+                </select>
+              </div>
+
+              <div className="flex justify-between mt-6">
+                <button
+                  type="button"
+                  onClick={handlePrevStep}
+                  className="px-6 py-3 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Previous
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  Create Campaign
+                </button>
+              </div>
+            </section>
+          )}
+        </form>
       </main>
 
       <footer className="text-center text-gray-500 mt-8">
