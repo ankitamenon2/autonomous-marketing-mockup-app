@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 // import Link from 'next/link';
 
 // Import Chart.js components
-import { Line, Bar } from 'react-chartjs-2'; // Removed Doughnut as it's unused and caused lint error
+import { Line, Bar } from 'react-chartjs-2'; // Doughnut removed as it's not used in this component
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement, // Keep ArcElement if Doughnut might be used in other chart types, or remove if not. Keeping for broader chart compatibility.
+  // ArcElement removed as Doughnut is not used in this component
   Title,
   Tooltip,
   Legend,
@@ -27,7 +27,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
+  // ArcElement registration removed
   Title,
   Tooltip,
   Legend

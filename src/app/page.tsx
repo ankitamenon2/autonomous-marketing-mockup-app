@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 // import Link from 'next/link';
 
 // Import Chart.js components
-import { Line, Bar } from 'react-chartjs-2'; // Removed Doughnut as it's unused in this specific component
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,6 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  // Removed ArcElement as Doughnut is no longer used
   Title,
   Tooltip,
   Legend,
@@ -27,7 +26,6 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
-  // Removed ArcElement registration
   Title,
   Tooltip,
   Legend
@@ -332,4 +330,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-//sjsjjsjss
