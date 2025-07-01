@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import Link from 'next/link';
 
 ChartJS.register(
   CategoryScale,
@@ -187,12 +188,12 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 font-semibold underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
+            <li><Link href="/" className="text-blue-600 font-semibold underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
             <li>
               <button
                 onClick={handleLogout}
@@ -244,7 +245,7 @@ export default function DashboardPage() {
             </div>
             {/* Button to Monthly Goals Screen */}
             <div className="absolute bottom-4 right-4">
-                <a
+                <Link
                   href="/monthly-goals"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                 >
@@ -252,7 +253,7 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h4m-4 4h4m-5 4h10a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Set Monthly Goals
-                </a>
+                </Link>
             </div>
           </div>
         </section>
@@ -274,7 +275,7 @@ export default function DashboardPage() {
         <section className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Content Generation Hub</h2>
           <p className="text-gray-600 mb-4">Leverage AI to create tailored marketing messages for various customer cohorts.</p>
-          <a
+          <Link
             href="/content-generator"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
@@ -282,7 +283,7 @@ export default function DashboardPage() {
               <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.28 7.22a.75.75 0 00-1.06 1.06L9.94 10l-2.72 2.72a.75.75 0 101.06 1.06L11 11.06l2.72 2.72a.75.75 0 101.06-1.06L12.06 10l2.72-2.72a.75.75 0 00-1.06-1.06L11 8.94l-2.72-2.72z" />
             </svg>
             Generate AI Content
-          </a>
+          </Link>
         </section>
 
 
@@ -308,7 +309,7 @@ export default function DashboardPage() {
             </li>
           </ul>
           <div className="mt-4 text-right">
-            <a href="/activities" className="text-blue-600 hover:underline text-sm">View all activities</a>
+            <Link href="/activities" className="text-blue-600 hover:underline text-sm">View all activities</Link>
           </div>
         </section>
       </main>

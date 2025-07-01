@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 // Removed Next.js specific imports to resolve build errors
 // import { useRouter } from 'next/navigation';
 // import Link from 'next/link';
@@ -114,12 +115,12 @@ export default function CampaignsPage() {
         <h1 className="text-3xl font-bold text-gray-800">Campaign Management</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</Link></li>
             {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
@@ -180,7 +181,7 @@ export default function CampaignsPage() {
             </div>
 
             {/* Create New Campaign Button */}
-            <a
+            <Link
               href="/create-campaign" // Reverted to a
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full md:w-auto"
             >
@@ -188,7 +189,7 @@ export default function CampaignsPage() {
                 <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
               Create New Campaign
-            </a>
+            </Link>
           </div>
         </div>
 

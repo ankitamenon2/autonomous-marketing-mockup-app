@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState('general');
@@ -48,12 +49,12 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold text-gray-800">Account Settings</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 font-semibold underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 font-semibold underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
             <li>
               <button
                 onClick={handleLogout}
@@ -152,20 +153,20 @@ export default function SettingsPage() {
               {isBillingDropdownOpen && (
                 <ul className="pl-4 mt-1 space-y-1">
                   <li>
-                    <a
+                    <Link
                       href="/settings/billing/manage-subscription"
                       className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
                     >
                       Manage Subscription
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
+                    <Link
                       href="/settings/billing/history"
                       className="block w-full text-left p-2 rounded-md text-gray-700 hover:bg-gray-50 text-sm"
                     >
                       View Billing History
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               )}
