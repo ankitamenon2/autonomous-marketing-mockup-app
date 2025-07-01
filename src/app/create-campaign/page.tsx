@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
-import Link from 'next/link'; // Correct Next.js import for internal links
+// Removed Next.js specific imports to resolve build errors
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
 
 export default function CreateCampaignPage() {
-  const router = useRouter(); // Use Next.js router hook
+  // Removed useRouter hook
+  // const router = useRouter();
+
   const [step, setStep] = useState(1);
 
   // Form states for Campaign Details
@@ -31,20 +34,20 @@ export default function CreateCampaignPage() {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login'); // Use router.push for Next.js navigation
+      window.location.href = '/login'; // Reverted to window.location.href for redirection
     }
-  }, [router]);
+  }, []); // Empty dependency array as router is no longer used
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login'); // Use router.push for Next.js navigation
+    window.location.href = '/login'; // Reverted to window.location.href for redirection
   };
 
   const handleNextStep = () => {
     // Basic validation for current step before moving on
     if (step === 1) {
       if (!campaignName || !campaignType || !startDate || !endDate) {
-        alert('Please fill in all campaign details.'); // Retaining alert for mockup
+        alert('Please fill in all campaign details.');
         return;
       }
     }
@@ -73,8 +76,8 @@ export default function CreateCampaignPage() {
       budget,
       campaignGoal,
     });
-    alert('Campaign Created Successfully! (Mock submission)'); // Retaining alert
-    router.push('/campaigns'); // Use router.push for Next.js navigation
+    alert('Campaign Created Successfully! (Mock submission)');
+    window.location.href = '/campaigns'; // Reverted to window.location.href for redirection
   };
 
   return (
@@ -83,12 +86,12 @@ export default function CreateCampaignPage() {
         <h1 className="text-3xl font-bold text-gray-800">Create New Campaign</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
-            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
-            <li><Link href="/analytics" className="text-blue-600 hover:underline">Analytics</Link></li>
-            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
-            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
-            <li><Link href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</Link></li>
+            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
+            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
+            <li><a href="/analytics" className="text-blue-600 hover:underline">Analytics</a></li>
+            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
+            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
+            <li><a href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</a></li>
             {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
@@ -238,7 +241,7 @@ export default function CreateCampaignPage() {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       min="0"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Target customers who haven't purchased in this many days (e.g., 90 for inactive).</p>
+                    <p className="text-xs text-gray-500 mt-1">Target customers who haven&apos;t purchased in this many days (e.g., 90 for inactive).</p> {/* Fixed unescaped apostrophe */}
                   </div>
                 </div>
               )}
@@ -287,9 +290,9 @@ export default function CreateCampaignPage() {
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Compose your campaign message here. Use AI Content Generation for help!"
                 ></textarea>
-                <Link href="/content-generator" target="_blank" className="text-sm text-blue-600 hover:underline mt-1 block"> {/* Use Link for external pages opens in new tab */}
+                <a href="/content-generator" target="_blank" className="text-sm text-blue-600 hover:underline mt-1 block"> {/* Reverted to a */}
                   Open AI Content Generator <span aria-hidden="true">&rarr;</span>
-                </Link>
+                </a>
               </div>
               <div>
                 <label htmlFor="callToActionLink" className="block text-sm font-medium text-gray-700 mb-1">Call to Action Link (URL)</label>

@@ -16,13 +16,13 @@ export default function ContentGenerationPage() {
 
   // Mock content generation function (replace with actual AI API calls)
   const generateSampleMessage = (cohort: string, currentTone: string, currentLength: string, currentCallToAction: string, currentTopic: string, currentKeywords: string) => {
-    const baseMessage = `Here's your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`; // Changed to const to fix lint error
+    const baseMessage = `Here&apos;s your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`; // Fixed unescaped apostrophe and changed to const
 
     switch (cohort) {
       case 'New Customers':
-        return `👋 Welcome! ${baseMessage} Don't miss out! ${currentCallToAction} for a special first-time offer!`;
+        return `👋 Welcome! ${baseMessage} Don&apos;t miss out! ${currentCallToAction} for a special first-time offer!`; // Fixed unescaped apostrophe
       case 'Engaged Shoppers':
-        return `✨ Great news! ${baseMessage} We think you'll love this. Click here to ${currentCallToAction.toLowerCase()}!`;
+        return `✨ Great news! ${baseMessage} We think you&apos;ll love this. Click here to ${currentCallToAction.toLowerCase()}!`; // Fixed unescaped apostrophe
       case 'Inactive Users':
         return `⏳ We miss you! ${baseMessage} Come back and ${currentCallToAction.toLowerCase()} with an exclusive discount!`;
       case 'VIP Customers':

@@ -1,11 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
-
-// Import Chart.js components
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -19,7 +14,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// Register Chart.js components. Crucial for Chart.js v3+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -32,20 +26,16 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
-  // Removed useRouter hook as Link and router.push are being replaced with <a> and window.location.href
-  // const router = useRouter();
-
-  // Authentication check
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
+      window.location.href = '/login';
     }
-  }, []); // Empty dependency array as router is no longer used
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    window.location.href = '/login';
   };
 
   // --- Mock Data for Dashboard Cards ---
@@ -203,7 +193,6 @@ export default function DashboardPage() {
             <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
             <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
             <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
-            {/* Monthly Goals link intentionally removed from top navigation as per user's specific request */}
             <li>
               <button
                 onClick={handleLogout}

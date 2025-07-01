@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// import { useRouter } from 'next/navigation'; // Removed for general React compatibility
-// import Link from 'next/link'; // Removed for general React compatibility
+// Removed Next.js specific imports to resolve build errors
+// import { useRouter } from 'next/navigation';
+// import Link from 'next/link';
 
 // Mock campaign data with more details
 const mockCampaigns = [
@@ -79,8 +80,9 @@ const mockCampaigns = [
 ];
 
 export default function CampaignsPage() {
-  // const router = useRouter(); // Removed
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  // Removed useRouter hook
+  // const router = useRouter();
+  const [campaigns, setCampaigns] = useState(mockCampaigns); // useState is used for filtering, so it's not unused
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,13 +91,13 @@ export default function CampaignsPage() {
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      window.location.href = '/login'; // Changed for general React compatibility
+      window.location.href = '/login'; // Reverted to window.location.href for redirection
     }
-  }, []);
+  }, []); // Empty dependency array as router is no longer used
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Changed for general React compatibility
+    window.location.href = '/login'; // Reverted to window.location.href for redirection
   };
 
   const filteredCampaigns = campaigns.filter(campaign => {
@@ -118,7 +120,7 @@ export default function CampaignsPage() {
             <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
             <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
             <li><a href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</a></li>
-            {/* Removed Monthly Goals link from top nav consistent with Dashboard */}
+            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -179,7 +181,7 @@ export default function CampaignsPage() {
 
             {/* Create New Campaign Button */}
             <a
-              href="/create-campaign" // Link to the new create campaign page
+              href="/create-campaign" // Reverted to a
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full md:w-auto"
             >
               <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -243,7 +245,7 @@ export default function CampaignsPage() {
                     <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
                         campaign.status === 'Active' ? 'text-green-900' :
                         campaign.status === 'Paused' ? 'text-yellow-900' :
-                        'text-gray-900' // For Completed
+                        'text-gray-900'
                     }`}>
                         <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
                             campaign.status === 'Active' ? 'bg-green-200' :
@@ -287,7 +289,6 @@ export default function CampaignsPage() {
                     >
                         Edit
                     </button>
-                    {/* Add more actions like Pause/Activate, Delete */}
                   </td>
                 </tr>
               ))}

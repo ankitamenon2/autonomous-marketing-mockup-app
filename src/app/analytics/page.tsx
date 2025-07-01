@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 // import Link from 'next/link';
 
 // Import Chart.js components
-import { Line, Bar } from 'react-chartjs-2'; // Doughnut removed as it's not used in this component
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,7 +14,6 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  // ArcElement removed as Doughnut is not used in this component
   Title,
   Tooltip,
   Legend,
@@ -27,7 +26,6 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
-  // ArcElement registration removed
   Title,
   Tooltip,
   Legend
@@ -165,7 +163,7 @@ export default function AnalyticsPage() {
     {
       id: 3,
       name: 'Inactive Customer Re-engagement',
-      lastRun: '2025-06-15',
+    lastRun: '2025-06-15',
       status: 'Paused',
       messagesSent: 5000,
       peopleReached: 4500,
@@ -310,6 +308,9 @@ export default function AnalyticsPage() {
                                 Revenue
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Conversion Rate (%)
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Performance
                             </th>
                         </tr>
@@ -344,27 +345,37 @@ export default function AnalyticsPage() {
                                     <p className="text-gray-900 whitespace-no-wrap">{campaign.linkClicks.toLocaleString()}</p>
                                 </td>
                                 <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.ctr.toFixed(1)}%</p>
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.ctr}%</p>
                                 </td>
                                 <td className="px-5 py-5 border-b border-gray-200 text-sm">
                                     <p className="text-gray-900 whitespace-no-wrap">${campaign.revenueGenerated.toLocaleString()}</p>
                                 </td>
                                 <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                                    <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
-                                        campaign.working ? 'text-green-900' : 'text-red-900'
-                                    }`}>
-                                        <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
-                                            campaign.working ? 'bg-green-200' : 'bg-red-200'
-                                        }`}></span>
-                                        <span className="relative">{campaign.working ? 'Working Well' : 'Needs Review'}</span>
-                                    </span>
+                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.conversionRate}%</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 text-sm space-x-3">
+                                    <button
+                                        onClick={() => alert(`Viewing details for: ${campaign.name}`)}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        View
+                                    </button>
+                                    <button
+                                        onClick={() => alert(`Editing: ${campaign.name}`)}
+                                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                                    >
+                                        Edit
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            </div>
-        </section>
+                {mockCampaigns.length === 0 && (
+                  <div className="text-center py-10 text-gray-500">No campaigns found matching your criteria.</div>
+                )}
+              </div>
+            </section>
       </main>
 
       <footer className="text-center text-gray-500 mt-8">

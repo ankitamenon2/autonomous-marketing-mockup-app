@@ -30,8 +30,8 @@ const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 export default function CustomersPage() {
   // Removed useRouter hook
   // const router = useRouter();
-  const [customers, setCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
+  const [displayedCustomers, setDisplayedCustomers] = useState(mockCustomers); // State to hold filtered customers
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -40,19 +40,20 @@ export default function CustomersPage() {
     }
   }, []); // Empty dependency array as router is no longer used
 
+  // Effect to filter customers whenever searchTerm changes
+  useEffect(() => {
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const filtered = mockCustomers.filter(customer =>
+      customer.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+      customer.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+      (customer.phone && customer.phone.toLowerCase().includes(lowerCaseSearchTerm))
+    );
+    setDisplayedCustomers(filtered);
+  }, [searchTerm]); // Re-run this effect whenever searchTerm changes
+
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     window.location.href = '/login'; // Reverted to window.location.href for redirection
-  };
-
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    const filteredCustomers = mockCustomers.filter(customer =>
-      customer.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
-      customer.email.toLowerCase().includes(event.target.value.toLowerCase()) ||
-      (customer.phone && customer.phone.toLowerCase().includes(event.target.value.toLowerCase()))
-    );
-    setCustomers(filteredCustomers);
   };
 
   return (
@@ -94,7 +95,7 @@ export default function CustomersPage() {
               className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
               placeholder="Search customers..."
               value={searchTerm}
-              onChange={handleSearch}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm state directly
             />
           </div>
         </div>
@@ -127,36 +128,44 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {customers.map((customer) => (
-                <tr key={customer.id}>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{customer.name}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{customer.email}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{customer.phone}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                      <span aria-hidden className="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                      <span className="relative">{customer.segment}</span>
-                    </span>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{formatDate(customer.lastPurchase)}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{formatCurrency(customer.totalSpent)}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">
-                      {customer.repeatPurchaseCount > 1 ? `Yes (${customer.repeatPurchaseCount})` : 'No'}
-                    </p>
+              {displayedCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-5 border-b border-gray-200 text-center text-sm text-gray-500">
+                    No customers found matching your search.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                displayedCustomers.map((customer) => (
+                  <tr key={customer.id}>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{customer.name}</p>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{customer.email}</p>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{customer.phone}</p>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                        <span aria-hidden className="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                        <span className="relative">{customer.segment}</span>
+                      </span>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{formatDate(customer.lastPurchase)}</p>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{formatCurrency(customer.totalSpent)}</p>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">
+                        {customer.repeatPurchaseCount > 1 ? `Yes (${customer.repeatPurchaseCount})` : 'No'}
+                      </p>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

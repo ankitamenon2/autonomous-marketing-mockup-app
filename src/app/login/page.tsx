@@ -2,32 +2,26 @@
 
 'use client'; // This MUST be the very first line of the file
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
 
-  // Redirect to dashboard if already authenticated
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (isAuthenticated) {
-      router.push('/');
+      window.location.href = '/';
     }
-  }, [router]);
+  }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(''); // Clear previous errors
-
-    // Simple hardcoded authentication for the mockup
+    setError('');
     if (username === 'admin' && password === 'password') {
       localStorage.setItem('isAuthenticated', 'true');
-      router.push('/'); // Redirect to dashboard
+      window.location.href = '/';
     } else {
       setError('Invalid username or password.');
     }
@@ -41,7 +35,6 @@ export default function LoginPage() {
           Sign in to your Autonomous Marketing Platform account.
           It&apos;s designed to be intuitive, efficient, and powerful.
         </p>
-
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
@@ -71,11 +64,9 @@ export default function LoginPage() {
               required
             />
           </div>
-
           {error && (
             <p className="text-red-500 text-sm text-center mb-4">{error}</p>
           )}
-
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out font-semibold"
@@ -83,7 +74,6 @@ export default function LoginPage() {
             Sign In
           </button>
         </form>
-
         <p className="text-center text-gray-500 text-sm mt-6">
           This is a mockup. Use &apos;admin&apos; for username and &apos;password&apos; for password.
         </p>
