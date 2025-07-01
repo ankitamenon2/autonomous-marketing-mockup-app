@@ -83,7 +83,7 @@ const mockCampaigns = [
 export default function CampaignsPage() {
   // Removed useRouter hook
   // const router = useRouter();
-  const [campaigns, setCampaigns] = useState(mockCampaigns); // useState is used for filtering, so it's not unused
+  const [campaigns] = useState(mockCampaigns);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
