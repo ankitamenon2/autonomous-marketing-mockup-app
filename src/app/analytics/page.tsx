@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Link from 'next/link';
 // Removed Next.js specific imports to resolve build errors
 // import { useRouter } from 'next/navigation';
 // import Link from 'next/link';
@@ -207,12 +208,12 @@ export default function AnalyticsPage() {
         <h1 className="text-3xl font-bold text-gray-800">Campaign Analytics</h1>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="/" className="text-blue-600 hover:underline">Dashboard</a></li>
-            <li><a href="/customers" className="text-blue-600 hover:underline">Customers</a></li>
-            <li><a href="/analytics" className="text-blue-600 font-semibold underline">Analytics</a></li>
-            <li><a href="/settings" className="text-blue-600 hover:underline">Settings</a></li>
-            <li><a href="/segments" className="text-blue-600 hover:underline">Segments</a></li>
-            <li><a href="/campaigns" className="text-blue-600 hover:underline">Campaigns</a></li>
+            <li><Link href="/" className="text-blue-600 hover:underline">Dashboard</Link></li>
+            <li><Link href="/customers" className="text-blue-600 hover:underline">Customers</Link></li>
+            <li><Link href="/analytics" className="text-blue-600 font-semibold underline">Analytics</Link></li>
+            <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
+            <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
+            <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
             {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
