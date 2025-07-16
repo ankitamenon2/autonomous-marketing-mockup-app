@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Correct Next.js import for routing
-import Link from 'next/link'; // Correct Next.js import for internal links
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface MonthlyGoal {
   id: string;
@@ -10,23 +10,21 @@ interface MonthlyGoal {
   year: number;
   revenueGoal: number;
   customerAcquisitionGoal: number;
-  dateSet: string;
+  dateSet: string; // Date when the goal was set/added
+  isNew?: boolean; // Flag for newly added, unsaved rows
 }
 
 export default function MonthlyGoalsPage() {
-  const router = useRouter(); // Use Next.js router hook
+  const router = useRouter();
   const [goals, setGoals] = useState<MonthlyGoal[]>([]);
-  const [newMonth, setNewMonth] = useState('');
-  const [newYear, setNewYear] = useState(new Date().getFullYear());
-  const [newRevenueGoal, setNewRevenueGoal] = useState(0);
-  const [newCustomerAcquisitionGoal, setNewCustomerAcquisitionGoal] = useState(0);
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
+  const [editedGoal, setEditedGoal] = useState<MonthlyGoal | null>(null);
 
   // Mock data for initial goals (replace with API calls in real app)
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     if (!isAuthenticated) {
-      router.push('/login'); // Use router.push for Next.js navigation
+      router.push('/login');
     }
 
     // Load mock goals or fetch from a mock API
@@ -57,72 +55,11 @@ export default function MonthlyGoalsPage() {
       },
     ];
     setGoals(initialGoals);
-  }, [router]); // Include router in dependency array
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    router.push('/login'); // Use router.push for Next.js navigation
-  };
-
-  const handleAddGoal = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMonth && newYear && newRevenueGoal >= 0 && newCustomerAcquisitionGoal >= 0) {
-      const newGoal: MonthlyGoal = {
-        id: `goal-${newYear}-${newMonth.toLowerCase()}-${Date.now()}`,
-        month: newMonth,
-        year: newYear,
-        revenueGoal: newRevenueGoal,
-        customerAcquisitionGoal: newCustomerAcquisitionGoal,
-        dateSet: new Date().toISOString().split('T')[0],
-      };
-      setGoals([...goals, newGoal]);
-      // Reset form fields
-      setNewMonth('');
-      setNewYear(new Date().getFullYear());
-      setNewRevenueGoal(0);
-      setNewCustomerAcquisitionGoal(0);
-      alert('Monthly goal added!'); // Retaining alert as per original code behavior for mockup
-    } else {
-      alert('Please fill in all goal fields correctly.'); // Retaining alert
-    }
-  };
-
-  const handleEditGoal = (goal: MonthlyGoal) => {
-    setEditingGoalId(goal.id);
-    setNewMonth(goal.month);
-    setNewYear(goal.year);
-    setNewRevenueGoal(goal.revenueGoal);
-    setNewCustomerAcquisitionGoal(goal.customerAcquisitionGoal);
-  };
-
-  const handleUpdateGoal = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editingGoalId) {
-      setGoals(goals.map(goal =>
-        goal.id === editingGoalId
-          ? {
-              ...goal,
-              month: newMonth,
-              year: newYear,
-              revenueGoal: newRevenueGoal,
-              customerAcquisitionGoal: newCustomerAcquisitionGoal,
-            }
-          : goal
-      ));
-      setEditingGoalId(null);
-      setNewMonth('');
-      setNewYear(new Date().getFullYear());
-      setNewRevenueGoal(0);
-      setNewCustomerAcquisitionGoal(0);
-      alert('Monthly goal updated!'); // Retaining alert
-    }
-  };
-
-  const handleDeleteGoal = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this goal?')) { // Retaining window.confirm
-      setGoals(goals.filter(goal => goal.id !== id));
-      alert('Monthly goal deleted!'); // Retaining alert
-    }
+    router.push('/login');
   };
 
   const monthOptions = [
@@ -130,9 +67,107 @@ export default function MonthlyGoalsPage() {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const formatDateString = (dateString: string) => { // Renamed to avoid conflict with `formatDate` from other files
+  const formatDateString = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  };
+
+  // Function to add a new empty row for editing
+  const handleAddNewRow = () => {
+    // If another row is already being edited, prevent adding a new one
+    if (editingGoalId) {
+      alert('Please save or cancel the current edit before adding a new goal.');
+      return;
+    }
+
+    const tempId = `new-goal-${crypto.randomUUID()}`; // Temporary ID for new row
+    const newEmptyGoal: MonthlyGoal = {
+      id: tempId,
+      month: '',
+      year: new Date().getFullYear(),
+      revenueGoal: 0,
+      customerAcquisitionGoal: 0,
+      dateSet: new Date().toISOString().split('T')[0],
+      isNew: true, // Mark as a new, unsaved row
+    };
+    setGoals(prevGoals => [...prevGoals, newEmptyGoal]);
+    setEditingGoalId(tempId);
+    setEditedGoal(newEmptyGoal);
+  };
+
+  // Function to start editing an existing goal
+  const handleEditGoal = (goal: MonthlyGoal) => {
+    // If another row is already being edited, prevent editing a new one
+    if (editingGoalId) {
+      alert('Please save or cancel the current edit before editing another goal.');
+      return;
+    }
+    setEditingGoalId(goal.id);
+    setEditedGoal({ ...goal }); // Create a mutable copy for editing
+  };
+
+  // Generic handler for input changes in the editable row
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof MonthlyGoal) => {
+    if (editedGoal) {
+      setEditedGoal({
+        ...editedGoal,
+        [field]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
+      });
+    }
+  };
+
+  // Function to save changes (either new or updated goal)
+  const handleSaveGoal = () => {
+    if (!editedGoal) return;
+
+    // Basic validation
+    if (!editedGoal.month || editedGoal.year === 0 || editedGoal.revenueGoal < 0 || editedGoal.customerAcquisitionGoal < 0) {
+      alert('Please fill in all fields correctly.');
+      return;
+    }
+
+    if (editedGoal.isNew) {
+      // It's a new goal, assign a permanent ID
+      const permanentId = `goal-${editedGoal.year}-${editedGoal.month.toLowerCase()}-${Date.now()}`;
+      setGoals(prevGoals =>
+        prevGoals.map(goal =>
+          goal.id === editedGoal.id
+            ? { ...editedGoal, id: permanentId, isNew: false } // Update with permanent ID and remove isNew flag
+            : goal
+        )
+      );
+      alert('New monthly goal added successfully!');
+    } else {
+      // It's an existing goal being updated
+      setGoals(prevGoals =>
+        prevGoals.map(goal =>
+          goal.id === editedGoal.id
+            ? { ...editedGoal, isNew: false } // Ensure isNew is false if it was somehow true
+            : goal
+        )
+      );
+      alert('Monthly goal updated successfully!');
+    }
+    setEditingGoalId(null); // Exit editing mode
+    setEditedGoal(null); // Clear edited goal state
+  };
+
+  // Function to cancel editing
+  const handleCancelEdit = () => {
+    if (editedGoal?.isNew) {
+      // If it was a new, unsaved row, remove it from the list
+      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== editedGoal.id));
+    }
+    setEditingGoalId(null); // Exit editing mode
+    setEditedGoal(null); // Clear edited goal state
+  };
+
+  // Function to delete a goal
+  const handleDeleteGoal = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this goal?')) {
+      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== id));
+      alert('Monthly goal deleted!');
+    }
   };
 
   return (
@@ -147,7 +182,6 @@ export default function MonthlyGoalsPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation as per Dashboard consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -160,92 +194,19 @@ export default function MonthlyGoalsPage() {
         </nav>
       </header>
 
-      <main className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
-        <h2 className="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">Set Your Monthly Marketing Goals</h2>
-
-        {/* Goal Input Form */}
-        <form onSubmit={editingGoalId ? handleUpdateGoal : handleAddGoal} className="space-y-4 mb-8 p-4 border border-indigo-200 rounded-lg bg-indigo-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="month" className="block text-sm font-medium text-gray-700">Month</label>
-              <select
-                id="month"
-                value={newMonth}
-                onChange={(e) => setNewMonth(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                required
-              >
-                <option value="">Select Month</option>
-                {monthOptions.map(month => (
-                  <option key={month} value={month}>{month}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="year" className="block text-sm font-medium text-gray-700">Year</label>
-              <input
-                type="number"
-                id="year"
-                value={newYear}
-                onChange={(e) => setNewYear(Number(e.target.value))}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                min="2000"
-                max="2100"
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="revenueGoal" className="block text-sm font-medium text-gray-700">Revenue Goal ($)</label>
-            <input
-              type="number"
-              id="revenueGoal"
-              value={newRevenueGoal}
-              onChange={(e) => setNewRevenueGoal(Number(e.target.value))}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              min="0"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="customerAcquisitionGoal" className="block text-sm font-medium text-gray-700">Customer Acquisition Goal</label>
-            <input
-              type="number"
-              id="customerAcquisitionGoal"
-              value={newCustomerAcquisitionGoal}
-              onChange={(e) => setNewCustomerAcquisitionGoal(Number(e.target.value))}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              min="0"
-              required
-            />
-          </div>
+      <main className="bg-white p-6 rounded-lg shadow-md max-w-5xl mx-auto">
+        <div className="flex justify-between items-center mb-6 border-b pb-2">
+          <h2 className="text-2xl font-semibold text-gray-700">Your Current Goals</h2>
           <button
-            type="submit"
-            className="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={handleAddNewRow}
+            className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            {editingGoalId ? 'Update Goal' : 'Add New Goal'}
+            Add New Goal
           </button>
-          {editingGoalId && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingGoalId(null);
-                setNewMonth('');
-                setNewYear(new Date().getFullYear());
-                setNewRevenueGoal(0);
-                setNewCustomerAcquisitionGoal(0);
-              }}
-              className="w-full mt-2 px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              Cancel Edit
-            </button>
-          )}
-        </form>
+        </div>
 
-        {/* Existing Goals Table */}
-        <h2 className="text-2xl font-semibold text-gray-700 mb-6 border-b pb-2">Your Current Goals</h2>
-        {goals.length === 0 ? (
-          <p className="text-gray-500">No monthly goals set yet. Add one above!</p>
+        {goals.length === 0 && !editingGoalId ? (
+          <p className="text-gray-500 text-center py-10">No monthly goals set yet. Click "Add New Goal" to get started!</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full leading-normal">
@@ -274,35 +235,96 @@ export default function MonthlyGoalsPage() {
               <tbody className="bg-white">
                 {goals.map((goal) => (
                   <tr key={goal.id}>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{goal.month}</p>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{goal.year}</p>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">${goal.revenueGoal.toLocaleString()}</p>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{goal.customerAcquisitionGoal.toLocaleString()}</p>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                      <p className="text-gray-900 whitespace-no-wrap">{formatDateString(goal.dateSet)}</p>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
-                      <button
-                        onClick={() => handleEditGoal(goal)}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteGoal(goal.id)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
-                      >
-                        Delete
-                      </button>
-                    </td>
+                    {editingGoalId === goal.id && editedGoal ? (
+                      // Render editable row
+                      <>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <select
+                            value={editedGoal.month}
+                            onChange={(e) => handleInputChange(e, 'month')}
+                            className="w-full p-2 border rounded-md"
+                          >
+                            {monthOptions.map(month => (
+                              <option key={month} value={month}>{month}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <input
+                            type="number"
+                            value={editedGoal.year}
+                            onChange={(e) => handleInputChange(e, 'year')}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <input
+                            type="number"
+                            value={editedGoal.revenueGoal}
+                            onChange={(e) => handleInputChange(e, 'revenueGoal')}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <input
+                            type="number"
+                            value={editedGoal.customerAcquisitionGoal}
+                            onChange={(e) => handleInputChange(e, 'customerAcquisitionGoal')}
+                            className="w-full p-2 border rounded-md"
+                          />
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{formatDateString(editedGoal.dateSet)}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
+                          <button
+                            onClick={handleSaveGoal}
+                            className="text-green-600 hover:text-green-800 text-sm font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      // Render display row
+                      <>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{goal.month}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{goal.year}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">${goal.revenueGoal.toLocaleString()}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{goal.customerAcquisitionGoal.toLocaleString()}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{formatDateString(goal.dateSet)}</p>
+                        </td>
+                        <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
+                          <button
+                            onClick={() => handleEditGoal(goal)}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteGoal(goal.id)}
+                            className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
