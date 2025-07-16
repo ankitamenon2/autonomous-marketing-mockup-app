@@ -206,7 +206,7 @@ export default function MonthlyGoalsPage() {
         </div>
 
         {goals.length === 0 && !editingGoalId ? (
-          <p className="text-gray-500 text-center py-10">No monthly goals set yet. Click "Add New Goal" to get started!</p>
+          <p className="text-gray-500 text-center py-10">No monthly goals set yet. Click &quot;Add New Goal&quot; to get started!</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full leading-normal">
