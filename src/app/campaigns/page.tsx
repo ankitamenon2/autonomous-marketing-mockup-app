@@ -81,12 +81,11 @@ const mockCampaigns = [
 
 export default function CampaignsPage() {
   const router = useRouter();
-  const [campaigns, setCampaigns] = useState(mockCampaigns);
+  const [campaigns] = useState(mockCampaigns);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -98,7 +97,6 @@ export default function CampaignsPage() {
       if (!currentUser) {
         router.push('/login');
       } else {
-        setIsAuthReady(true);
         setIsLoading(false);
       }
     });

@@ -34,7 +34,6 @@ ChartJS.register(
 export default function AnalyticsPage() {
   const router = useRouter();
   const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Firebase Initialization and Authentication Check
@@ -47,7 +46,6 @@ export default function AnalyticsPage() {
       if (!currentUser) {
         router.push('/login');
       } else {
-        setIsAuthReady(true);
         setIsLoading(false);
       }
     });

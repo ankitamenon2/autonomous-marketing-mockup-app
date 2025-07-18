@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { doc, setDoc, collection, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, onSnapshot } from 'firebase/firestore';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 interface MonthlyGoal {
