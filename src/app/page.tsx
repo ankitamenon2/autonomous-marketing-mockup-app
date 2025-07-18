@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getFirebaseServices } from './firebase'; // Assuming firebase.js is in the parent directory
+import { getFirebaseServices } from './firebase';
+import { doc, getDoc, DocumentSnapshot } from 'firebase/firestore';
 import Link from 'next/link';
 
 // Import Chart.js components
@@ -35,40 +34,32 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null);
-  const [db, setDb] = useState<any>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Firebase Initialization and Authentication Check
   useEffect(() => {
     const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
     setAuth(firebaseAuth);
-    setDb(firestoreDb);
-
     authReadyPromise.then(() => {
       const currentUser = firebaseAuth.currentUser;
       if (!currentUser) {
         router.push('/login');
         return;
       }
-      if (!firestoreDb) return;
-
       // Check if Shopify key is set for this user
       const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
-      const shopifyDocRef = doc(firestoreDb, `artifacts/${appId}/users/${currentUser.uid}/integrations`, 'shopify');
-
-      getDoc(shopifyDocRef).then((shopifyDocSnap) => {
+      const shopifyDocRef = firestoreDb ? doc(firestoreDb, `artifacts/${appId}/users/${currentUser.uid}/integrations`, 'shopify') : null;
+      if (!shopifyDocRef) return;
+      getDoc(shopifyDocRef).then((shopifyDocSnap: DocumentSnapshot) => {
         if (!shopifyDocSnap.exists()) {
-          router.push('/onboarding'); // No Shopify key, redirect to onboarding
+          router.push('/onboarding');
         } else {
-          setIsAuthReady(true); // Auth and Shopify check passed
           setIsLoading(false);
         }
-      }).catch(error => {
+      }).catch((error: unknown) => {
         console.error("Error checking Shopify integration:", error);
-        router.push('/login'); // Redirect to login on error
+        router.push('/login');
       });
     });
   }, [router]);
@@ -77,7 +68,7 @@ export default function DashboardPage() {
     if (auth) {
       await auth.signOut();
     }
-    localStorage.removeItem('isAuthenticated'); // Clear local storage flag
+    localStorage.removeItem('isAuthenticated');
     router.push('/login');
   };
 

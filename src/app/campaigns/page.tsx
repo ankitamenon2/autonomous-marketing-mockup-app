@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
-import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
+import { getFirebaseServices } from '../firebase';
 
 // Mock campaign data with more details
 const mockCampaigns = [
@@ -86,11 +85,10 @@ export default function CampaignsPage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
-  const [auth, setAuth] = useState<any>(null);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Firebase Initialization and Authentication Check
   useEffect(() => {
     const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !authReadyPromise) return;

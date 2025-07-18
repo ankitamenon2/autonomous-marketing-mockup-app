@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 export default function OnboardingPage() {
@@ -13,8 +12,8 @@ export default function OnboardingPage() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(true); // Added loading state
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null);
-  const [db, setDb] = useState<any>(null);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
+  const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,9 +61,10 @@ export default function OnboardingPage() {
       setTimeout(() => {
         router.push('/');
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
       console.error("Shopify connection error:", err);
-      setError(err.message || 'Failed to connect Shopify. Please try again.');
+      setError(error.message || 'Failed to connect Shopify. Please try again.');
     } finally {
       setIsLoading(false);
     }

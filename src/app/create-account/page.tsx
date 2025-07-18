@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, Auth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase';
 import Link from 'next/link';
 
 export default function CreateAccountPage() {
@@ -12,8 +12,8 @@ export default function CreateAccountPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null); // State to hold auth instance
-  const [isAuthReady, setIsAuthReady] = useState(false); // State to track if auth is initialized
+  const [auth, setAuth] = useState<Auth | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
     const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();

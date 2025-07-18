@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 // Mock customer data (replace with API calls in a real application)
@@ -32,8 +31,7 @@ export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [displayedCustomers, setDisplayedCustomers] = useState(mockCustomers);
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Firebase Initialization and Authentication Check
@@ -46,7 +44,6 @@ export default function CustomersPage() {
       if (!currentUser) {
         router.push('/login');
       } else {
-        setIsAuthReady(true);
         setIsLoading(false);
       }
     });

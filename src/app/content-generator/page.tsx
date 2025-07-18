@@ -3,21 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
-import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
+import { getFirebaseServices } from '../firebase';
 
 export default function ContentGenerationPage() {
+  const router = useRouter();
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [tone, setTone] = useState('Friendly');
   const [length, setLength] = useState('Concise');
   const [callToAction, setCallToAction] = useState('Shop Now');
   const [topic, setTopic] = useState('New Product Launch');
   const [keywords, setKeywords] = useState('innovative, user-friendly, efficient');
-  const router = useRouter();
-  const [auth, setAuth] = useState<any>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Firebase Initialization and Authentication Check
   useEffect(() => {
     const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !authReadyPromise) return;
@@ -63,6 +61,7 @@ export default function ContentGenerationPage() {
   ];
 
   const handleLogout = async () => {
+    const { auth } = getFirebaseServices();
     if (auth) {
       await auth.signOut();
     }

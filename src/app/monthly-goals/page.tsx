@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, setDoc, collection, query, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, onSnapshot, deleteDoc } from 'firebase/firestore';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 interface MonthlyGoal {
@@ -20,10 +19,9 @@ export default function MonthlyGoalsPage() {
   const router = useRouter();
   const [goals, setGoals] = useState<MonthlyGoal[]>([]);
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null); // To track which row is actively being added/edited
-  const [auth, setAuth] = useState<any>(null);
-  const [db, setDb] = useState<any>(null);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
+  const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Firebase Initialization and Authentication Check
@@ -40,13 +38,13 @@ export default function MonthlyGoalsPage() {
         return;
       }
       setUserId(currentUser.uid);
-      setIsAuthReady(true);
+      // setIsAuthReady(true); // No longer needed
     });
   }, [router]);
 
   // Fetch goals from Firestore
   useEffect(() => {
-    if (isAuthReady && userId && db) {
+    if (userId && db) {
       const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
       const goalsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/monthlyGoals`);
 
@@ -64,7 +62,7 @@ export default function MonthlyGoalsPage() {
 
       return () => unsubscribe(); // Cleanup listener on unmount
     }
-  }, [isAuthReady, userId, db]);
+  }, [userId, db]);
 
 
   const handleLogout = async () => {
@@ -149,7 +147,7 @@ export default function MonthlyGoalsPage() {
 
       setEditingGoalId(null); // Exit editing mode for this row
       alert('Goal saved successfully!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error saving goal:", error);
       alert('Failed to save goal. Please try again.');
     } finally {
@@ -171,7 +169,7 @@ export default function MonthlyGoalsPage() {
         const goalRef = doc(db, `artifacts/${appId}/users/${userId}/monthlyGoals`, id);
         await deleteDoc(goalRef);
         alert('Goal deleted successfully!');
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error deleting goal:", error);
         alert('Failed to delete goal. Please try again.');
       } finally {

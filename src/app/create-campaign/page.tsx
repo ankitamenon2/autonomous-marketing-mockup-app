@@ -3,8 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
-import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
+import { getFirebaseServices } from '../firebase';
 
 export default function CreateCampaignPage() {
   const router = useRouter();
@@ -29,8 +28,7 @@ export default function CreateCampaignPage() {
   const [budget, setBudget] = useState(0);
   const [campaignGoal, setCampaignGoal] = useState('Conversions');
 
-  const [auth, setAuth] = useState<any>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Firebase Initialization and Authentication Check
@@ -43,7 +41,6 @@ export default function CreateCampaignPage() {
       if (!currentUser) {
         router.push('/login');
       } else {
-        setIsAuthReady(true);
         setIsLoading(false);
       }
     });

@@ -12,9 +12,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null); // State to hold auth instance
-  const [db, setDb] = useState<any>(null);     // State to hold db instance
-  const [isAuthReady, setIsAuthReady] = useState(false); // State to track if auth is initialized
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null); // State to hold auth instance
+  const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);     // State to hold db instance
+  // Removed isAuthReady if not used elsewhere
 
   useEffect(() => {
     const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
@@ -24,7 +24,6 @@ export default function LoginPage() {
 
     authReadyPromise.then(() => {
       onAuthStateChanged(firebaseAuth, async (user) => {
-        setIsAuthReady(true);
         if (user) {
           const appId = 'default-app-id';
           if (!firestoreDb) return;
@@ -40,7 +39,7 @@ export default function LoginPage() {
     });
   }, [router]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -52,9 +51,10 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // Redirection handled by onAuthStateChanged listener
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
       console.error("Login error:", err);
-      setError(err.message || 'Failed to log in. Please check your credentials.');
+      setError(error.message || 'Failed to log in. Please check your credentials.');
     }
   };
 
@@ -69,13 +69,14 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       // Redirection handled by onAuthStateChanged listener
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
       console.error("Google Sign-In error:", err);
-      setError(err.message || 'Failed to sign in with Google.');
+      setError(error.message || 'Failed to sign in with Google.');
     }
   };
 
-  if (!isAuthReady) {
+  if (!auth) { // Check if auth is initialized
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center text-gray-600">Loading authentication...</div>

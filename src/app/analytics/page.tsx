@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getAuth } from 'firebase/auth';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 // Import Chart.js components
@@ -34,7 +33,7 @@ ChartJS.register(
 
 export default function AnalyticsPage() {
   const router = useRouter();
-  const [auth, setAuth] = useState<any>(null);
+  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
