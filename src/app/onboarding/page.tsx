@@ -12,14 +12,13 @@ export default function OnboardingPage() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(true); // Added loading state
   const router = useRouter();
-  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
   const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
-    setAuth(firebaseAuth);
+    // setAuth(firebaseAuth); // Removed unused auth
     setDb(firestoreDb);
 
     authReadyPromise.then(() => {

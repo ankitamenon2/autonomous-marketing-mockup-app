@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, Auth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, Auth } from 'firebase/auth';
 import { getFirebaseServices } from '../firebase';
 import Link from 'next/link';
 
@@ -47,9 +47,10 @@ export default function CreateAccountPage() {
       await createUserWithEmailAndPassword(auth, email, password);
       // On successful creation, the onAuthStateChanged listener in firebase.js
       // will detect the new user and handle redirection to /onboarding.
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { message?: string };
       console.error("Account creation error:", err);
-      setError(err.message || 'Failed to create account.');
+      setError(error.message || 'Failed to create account.');
     }
   };
 

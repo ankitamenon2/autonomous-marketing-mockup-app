@@ -7,8 +7,6 @@ import { getFirebaseServices } from '../firebase';
 
 export default function ContentGenerationPage() {
   const router = useRouter();
-  const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [tone, setTone] = useState('Friendly');
   const [length, setLength] = useState('Concise');
@@ -19,13 +17,11 @@ export default function ContentGenerationPage() {
   useEffect(() => {
     const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !authReadyPromise) return;
-    setAuth(firebaseAuth);
     authReadyPromise.then(() => {
       const currentUser = firebaseAuth.currentUser;
       if (!currentUser) {
         router.push('/login');
       } else {
-        setIsAuthReady(true);
         setIsLoading(false);
       }
     });

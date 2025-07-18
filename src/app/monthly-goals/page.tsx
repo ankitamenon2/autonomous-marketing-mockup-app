@@ -155,29 +155,6 @@ export default function MonthlyGoalsPage() {
     }
   };
 
-  // Function to delete a goal from Firestore
-  const handleDeleteGoal = async (id: string) => {
-    if (!db || !userId) {
-      alert('Database not ready or user not authenticated.');
-      return;
-    }
-
-    if (window.confirm('Are you sure you want to delete this goal?')) {
-      setIsLoading(true);
-      try {
-        const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
-        const goalRef = doc(db, `artifacts/${appId}/users/${userId}/monthlyGoals`, id);
-        await deleteDoc(goalRef);
-        alert('Goal deleted successfully!');
-      } catch (error: unknown) {
-        console.error("Error deleting goal:", error);
-        alert('Failed to delete goal. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 import Link from 'next/link';
 
@@ -13,14 +13,12 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const [auth, setAuth] = useState<import('firebase/auth').Auth | null>(null); // State to hold auth instance
-  const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);     // State to hold db instance
   // Removed isAuthReady if not used elsewhere
 
   useEffect(() => {
     const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
     if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
     setAuth(firebaseAuth);
-    setDb(firestoreDb);
 
     authReadyPromise.then(() => {
       onAuthStateChanged(firebaseAuth, async (user) => {
