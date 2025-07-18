@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 // Mock customer data (replace with API calls in a real application)
 const mockCustomers = [
@@ -29,17 +29,28 @@ const formatDate = (dateString: string | null) => {
 const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
 export default function CustomersPage() {
-  // Removed useRouter hook
-  // const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedCustomers, setDisplayedCustomers] = useState(mockCustomers); // State to hold filtered customers
+  const [displayedCustomers, setDisplayedCustomers] = useState(mockCustomers);
+  const router = useRouter();
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Firebase Initialization and Authentication Check
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
-    }
-  }, []); // Empty dependency array as router is no longer used
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
 
   // Effect to filter customers whenever searchTerm changes
   useEffect(() => {
@@ -50,12 +61,23 @@ export default function CustomersPage() {
       (customer.phone && customer.phone.toLowerCase().includes(lowerCaseSearchTerm))
     );
     setDisplayedCustomers(filtered);
-  }, [searchTerm]); // Re-run this effect whenever searchTerm changes
+  }, [searchTerm]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    router.push('/login');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading customers...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
@@ -69,7 +91,6 @@ export default function CustomersPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation as per Dashboard consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -96,7 +117,7 @@ export default function CustomersPage() {
               className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
               placeholder="Search customers..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm state directly
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>

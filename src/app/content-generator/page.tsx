@@ -1,29 +1,47 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 export default function ContentGenerationPage() {
-  // Removed useRouter hook
-  // const router = useRouter();
   const [tone, setTone] = useState('Friendly');
   const [length, setLength] = useState('Concise');
   const [callToAction, setCallToAction] = useState('Shop Now');
   const [topic, setTopic] = useState('New Product Launch');
   const [keywords, setKeywords] = useState('innovative, user-friendly, efficient');
+  const router = useRouter();
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Firebase Initialization and Authentication Check
+  useEffect(() => {
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
 
   // Mock content generation function (replace with actual AI API calls)
   const generateSampleMessage = (cohort: string, currentTone: string, currentLength: string, currentCallToAction: string, currentTopic: string, currentKeywords: string) => {
-    const baseMessage = `Here&apos;s your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`; // Fixed unescaped apostrophe and changed to const
+    const baseMessage = `Here&apos;s your ${currentLength.toLowerCase()} message with a ${currentTone.toLowerCase()} tone about ${currentTopic.toLowerCase()}. Keywords: ${currentKeywords}. CTA: ${currentCallToAction}.`;
 
     switch (cohort) {
       case 'New Customers':
-        return `👋 Welcome! ${baseMessage} Don&apos;t miss out! ${currentCallToAction} for a special first-time offer!`; // Fixed unescaped apostrophe
+        return `👋 Welcome! ${baseMessage} Don&apos;t miss out! ${currentCallToAction} for a special first-time offer!`;
       case 'Engaged Shoppers':
-        return `✨ Great news! ${baseMessage} We think you&apos;ll love this. Click here to ${currentCallToAction.toLowerCase()}!`; // Fixed unescaped apostrophe
+        return `✨ Great news! ${baseMessage} We think you&apos;ll love this. Click here to ${currentCallToAction.toLowerCase()}!`;
       case 'Inactive Users':
         return `⏳ We miss you! ${baseMessage} Come back and ${currentCallToAction.toLowerCase()} with an exclusive discount!`;
       case 'VIP Customers':
@@ -44,18 +62,12 @@ export default function ContentGenerationPage() {
     'Loyalty Program Members',
   ];
 
-
-  // Authentication check
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
     }
-  }, []); // Empty dependency array as router is no longer used
-
-  const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    router.push('/login');
   };
 
   // Mock save function (no actual backend interaction in this mockup)
@@ -74,6 +86,14 @@ export default function ContentGenerationPage() {
     alert('Content generated and saved! (This is a mockup)');
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading content generator...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
@@ -86,7 +106,6 @@ export default function ContentGenerationPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -156,7 +175,7 @@ export default function ContentGenerationPage() {
               id="callToAction"
               value={callToAction}
               onChange={(e) => setCallToAction(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
               placeholder="e.g., Shop Now, Learn More, Sign Up"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -174,7 +193,7 @@ export default function ContentGenerationPage() {
               id="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
               placeholder="e.g., New feature announcement, flash sale, re-engagement"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -192,7 +211,7 @@ export default function ContentGenerationPage() {
               id="keywords"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
               placeholder="e.g., innovation, growth, customer-first"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -239,3 +258,4 @@ export default function ContentGenerationPage() {
     </div>
   );
 }
+

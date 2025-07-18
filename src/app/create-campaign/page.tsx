@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 export default function CreateCampaignPage() {
-  // Removed useRouter hook
-  // const router = useRouter();
-
+  const router = useRouter();
   const [step, setStep] = useState(1);
 
   // Form states for Campaign Details
@@ -31,17 +29,32 @@ export default function CreateCampaignPage() {
   const [budget, setBudget] = useState(0);
   const [campaignGoal, setCampaignGoal] = useState('Conversions');
 
-  // Authentication check
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
-    }
-  }, []); // Empty dependency array as router is no longer used
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogout = () => {
+  // Firebase Initialization and Authentication Check
+  useEffect(() => {
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
+
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    router.push('/login');
   };
 
   const handleNextStep = () => {
@@ -78,8 +91,16 @@ export default function CreateCampaignPage() {
       campaignGoal,
     });
     alert('Campaign Created Successfully! (Mock submission)');
-    window.location.href = '/campaigns'; // Reverted to window.location.href for redirection
+    router.push('/campaigns');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading form...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8 font-sans">
@@ -93,7 +114,6 @@ export default function CreateCampaignPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -242,7 +262,7 @@ export default function CreateCampaignPage() {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       min="0"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Target customers who haven&apos;t purchased in this many days (e.g., 90 for inactive).</p> {/* Fixed unescaped apostrophe */}
+                    <p className="text-xs text-gray-500 mt-1">Target customers who haven&apos;t purchased in this many days (e.g., 90 for inactive).</p>
                   </div>
                 </div>
               )}
@@ -291,7 +311,7 @@ export default function CreateCampaignPage() {
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Compose your campaign message here. Use AI Content Generation for help!"
                 ></textarea>
-                <Link href="/content-generator" target="_blank" className="text-sm text-blue-600 hover:underline mt-1 block"> {/* Reverted to a */}
+                <Link href="/content-generator" target="_blank" className="text-sm text-blue-600 hover:underline mt-1 block">
                   Open AI Content Generator <span aria-hidden="true">&rarr;</span>
                 </Link>
               </div>

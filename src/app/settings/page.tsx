@@ -1,22 +1,41 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState('general');
   const [isBillingDropdownOpen, setIsBillingDropdownOpen] = useState(false);
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Firebase Initialization and Authentication Check
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-    }
-  }, []);
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   // Dummy state for various settings (replace with actual state management/API calls)
@@ -43,6 +62,14 @@ export default function SettingsPage() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading settings...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
@@ -68,6 +95,7 @@ export default function SettingsPage() {
       </header>
 
       <main className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto flex flex-col md:flex-row">
+        {/* Sidebar Navigation for Settings */}
         <nav className="md:w-1/4 pr-6 mb-6 md:mb-0 border-b md:border-b-0 md:border-r border-gray-200">
           <ul className="space-y-2">
             <li>
@@ -130,11 +158,12 @@ export default function SettingsPage() {
                 Notifications
               </button>
             </li>
+            {/* Account & Billing with Dropdown */}
             <li>
               <button
                 onClick={() => {
                   setActiveSection('billing');
-                  setIsBillingDropdownOpen(!isBillingDropdownOpen);
+                  setIsBillingDropdownOpen(!isBillingDropdownOpen); // Toggle dropdown
                 }}
                 className={`w-full text-left p-2 rounded-md transition-colors flex justify-between items-center ${
                   activeSection === 'billing' ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'
@@ -174,7 +203,9 @@ export default function SettingsPage() {
           </ul>
         </nav>
 
+        {/* Settings Content Area */}
         <div className="md:w-3/4 md:pl-6">
+          {/* General Settings Section */}
           {activeSection === 'general' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">General Settings</h2>
@@ -212,6 +243,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Integrations Section */}
           {activeSection === 'integrations' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">API & E-commerce Integrations</h2>
@@ -266,6 +298,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* AI & Content Generation Section */}
           {activeSection === 'ai_content' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">AI & Content Configuration</h2>
@@ -322,6 +355,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Campaign Automation Defaults Section */}
           {activeSection === 'automation_defaults' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Campaign Automation Defaults</h2>
@@ -372,6 +406,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Data & Segmentation Section */}
           {activeSection === 'data_segmentation' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Data & Segmentation</h2>
@@ -417,6 +452,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Notifications & Alerts Section */}
           {activeSection === 'notifications' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Notifications & Alerts</h2>
@@ -468,6 +504,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Placeholder for Account & Billing details when 'billing' is active, but sub-items are clicked */}
           {activeSection === 'billing' && (
             <section>
               <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Account & Billing Overview</h2>
@@ -482,6 +519,7 @@ export default function SettingsPage() {
             </section>
           )}
 
+          {/* Placeholder for Manage Subscription Page (if directly linked/routed) */}
           {activeSection === 'manage-subscription' && (
              <section>
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Manage Your Subscription</h2>
@@ -499,6 +537,7 @@ export default function SettingsPage() {
              </section>
           )}
 
+          {/* Placeholder for View Billing History Page (if directly linked/routed) */}
           {activeSection === 'view-history' && (
              <section>
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Billing History</h2>

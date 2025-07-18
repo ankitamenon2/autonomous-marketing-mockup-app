@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, doc, setDoc, collection, query, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 interface MonthlyGoal {
   id: string;
@@ -11,53 +14,63 @@ interface MonthlyGoal {
   revenueGoal: number;
   customerAcquisitionGoal: number;
   dateSet: string; // Date when the goal was set/added
-  isNew?: boolean; // Flag for newly added, unsaved rows
 }
 
 export default function MonthlyGoalsPage() {
   const router = useRouter();
   const [goals, setGoals] = useState<MonthlyGoal[]>([]);
-  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
-  const [editedGoal, setEditedGoal] = useState<MonthlyGoal | null>(null);
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null); // To track which row is actively being added/edited
+  const [auth, setAuth] = useState<any>(null);
+  const [db, setDb] = useState<any>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for initial goals (replace with API calls in real app)
+  // Firebase Initialization and Authentication Check
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
+    const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    setDb(firestoreDb);
 
-    // Load mock goals or fetch from a mock API
-    const initialGoals: MonthlyGoal[] = [
-      {
-        id: 'goal-2025-01',
-        month: 'January',
-        year: 2025,
-        revenueGoal: 20000,
-        customerAcquisitionGoal: 100,
-        dateSet: '2024-12-01',
-      },
-      {
-        id: 'goal-2025-02',
-        month: 'February',
-        year: 2025,
-        revenueGoal: 22000,
-        customerAcquisitionGoal: 120,
-        dateSet: '2025-01-01',
-      },
-      {
-        id: 'goal-2025-03',
-        month: 'March',
-        year: 2025,
-        revenueGoal: 25000,
-        customerAcquisitionGoal: 150,
-        dateSet: '2025-02-01',
-      },
-    ];
-    setGoals(initialGoals);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+        return;
+      }
+      setUserId(currentUser.uid);
+      setIsAuthReady(true);
+    });
   }, [router]);
 
-  const handleLogout = () => {
+  // Fetch goals from Firestore
+  useEffect(() => {
+    if (isAuthReady && userId && db) {
+      const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
+      const goalsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/monthlyGoals`);
+
+      const unsubscribe = onSnapshot(goalsCollectionRef, (snapshot) => {
+        const fetchedGoals: MonthlyGoal[] = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as MonthlyGoal[];
+        setGoals(fetchedGoals);
+        setIsLoading(false);
+      }, (error) => {
+        console.error("Error fetching monthly goals:", error);
+        setIsLoading(false);
+      });
+
+      return () => unsubscribe(); // Cleanup listener on unmount
+    }
+  }, [isAuthReady, userId, db]);
+
+
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
     router.push('/login');
   };
@@ -80,7 +93,7 @@ export default function MonthlyGoalsPage() {
       return;
     }
 
-    const tempId = `new-goal-${crypto.randomUUID()}`; // Temporary ID for new row
+    const tempId = `new-goal-${Date.now()}`; // Temporary ID for new row
     const newEmptyGoal: MonthlyGoal = {
       id: tempId,
       month: '',
@@ -88,87 +101,92 @@ export default function MonthlyGoalsPage() {
       revenueGoal: 0,
       customerAcquisitionGoal: 0,
       dateSet: new Date().toISOString().split('T')[0],
-      isNew: true, // Mark as a new, unsaved row
     };
     setGoals(prevGoals => [...prevGoals, newEmptyGoal]);
-    setEditingGoalId(tempId);
-    setEditedGoal(newEmptyGoal);
+    setEditingGoalId(tempId); // Set the new row as the one being edited
   };
 
-  // Function to start editing an existing goal
-  const handleEditGoal = (goal: MonthlyGoal) => {
-    // If another row is already being edited, prevent editing a new one
-    if (editingGoalId) {
-      alert('Please save or cancel the current edit before editing another goal.');
+  // Handle changes directly in the table cells
+  const handleCellChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    id: string,
+    field: keyof MonthlyGoal
+  ) => {
+    setGoals(prevGoals =>
+      prevGoals.map(goal =>
+        goal.id === id
+          ? { ...goal, [field]: e.target.type === 'number' ? Number(e.target.value) : e.target.value }
+          : goal
+      )
+    );
+  };
+
+  // Function to save a specific goal to Firestore
+  const handleSaveGoal = async (goalToSave: MonthlyGoal) => {
+    if (!db || !userId) {
+      alert('Database not ready or user not authenticated.');
       return;
     }
-    setEditingGoalId(goal.id);
-    setEditedGoal({ ...goal }); // Create a mutable copy for editing
-  };
-
-  // Generic handler for input changes in the editable row
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof MonthlyGoal) => {
-    if (editedGoal) {
-      setEditedGoal({
-        ...editedGoal,
-        [field]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
-      });
-    }
-  };
-
-  // Function to save changes (either new or updated goal)
-  const handleSaveGoal = () => {
-    if (!editedGoal) return;
 
     // Basic validation
-    if (!editedGoal.month || editedGoal.year === 0 || editedGoal.revenueGoal < 0 || editedGoal.customerAcquisitionGoal < 0) {
-      alert('Please fill in all fields correctly.');
+    if (!goalToSave.month || goalToSave.year === 0 || goalToSave.revenueGoal < 0 || goalToSave.customerAcquisitionGoal < 0) {
+      alert('Please fill in all fields correctly before saving.');
       return;
     }
 
-    if (editedGoal.isNew) {
-      // It's a new goal, assign a permanent ID
-      const permanentId = `goal-${editedGoal.year}-${editedGoal.month.toLowerCase()}-${Date.now()}`;
-      setGoals(prevGoals =>
-        prevGoals.map(goal =>
-          goal.id === editedGoal.id
-            ? { ...editedGoal, id: permanentId, isNew: false } // Update with permanent ID and remove isNew flag
-            : goal
-        )
-      );
-      alert('New monthly goal added successfully!');
-    } else {
-      // It's an existing goal being updated
-      setGoals(prevGoals =>
-        prevGoals.map(goal =>
-          goal.id === editedGoal.id
-            ? { ...editedGoal, isNew: false } // Ensure isNew is false if it was somehow true
-            : goal
-        )
-      );
-      alert('Monthly goal updated successfully!');
+    setIsLoading(true);
+    try {
+      const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
+      const goalRef = doc(db, `artifacts/${appId}/users/${userId}/monthlyGoals`, goalToSave.id);
+
+      await setDoc(goalRef, {
+        month: goalToSave.month,
+        year: goalToSave.year,
+        revenueGoal: goalToSave.revenueGoal,
+        customerAcquisitionGoal: goalToSave.customerAcquisitionGoal,
+        dateSet: goalToSave.dateSet,
+      }, { merge: true }); // Use merge to update existing fields or create if not exists
+
+      setEditingGoalId(null); // Exit editing mode for this row
+      alert('Goal saved successfully!');
+    } catch (error) {
+      console.error("Error saving goal:", error);
+      alert('Failed to save goal. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    setEditingGoalId(null); // Exit editing mode
-    setEditedGoal(null); // Clear edited goal state
   };
 
-  // Function to cancel editing
-  const handleCancelEdit = () => {
-    if (editedGoal?.isNew) {
-      // If it was a new, unsaved row, remove it from the list
-      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== editedGoal.id));
+  // Function to delete a goal from Firestore
+  const handleDeleteGoal = async (id: string) => {
+    if (!db || !userId) {
+      alert('Database not ready or user not authenticated.');
+      return;
     }
-    setEditingGoalId(null); // Exit editing mode
-    setEditedGoal(null); // Clear edited goal state
-  };
 
-  // Function to delete a goal
-  const handleDeleteGoal = (id: string) => {
     if (window.confirm('Are you sure you want to delete this goal?')) {
-      setGoals(prevGoals => prevGoals.filter(goal => goal.id !== id));
-      alert('Monthly goal deleted!');
+      setIsLoading(true);
+      try {
+        const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
+        const goalRef = doc(db, `artifacts/${appId}/users/${userId}/monthlyGoals`, id);
+        await deleteDoc(goalRef);
+        alert('Goal deleted successfully!');
+      } catch (error) {
+        console.error("Error deleting goal:", error);
+        alert('Failed to delete goal. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading goals...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
@@ -227,110 +245,72 @@ export default function MonthlyGoalsPage() {
                   <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Date Set
                   </th>
-                  <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  {/* Removed Actions column header */}
                 </tr>
               </thead>
               <tbody className="bg-white">
                 {goals.map((goal) => (
                   <tr key={goal.id}>
-                    {editingGoalId === goal.id && editedGoal ? (
-                      // Render editable row
-                      <>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <select
-                            value={editedGoal.month}
-                            onChange={(e) => handleInputChange(e, 'month')}
-                            className="w-full p-2 border rounded-md"
-                          >
-                            {monthOptions.map(month => (
-                              <option key={month} value={month}>{month}</option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <input
-                            type="number"
-                            value={editedGoal.year}
-                            onChange={(e) => handleInputChange(e, 'year')}
-                            className="w-full p-2 border rounded-md"
-                          />
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <input
-                            type="number"
-                            value={editedGoal.revenueGoal}
-                            onChange={(e) => handleInputChange(e, 'revenueGoal')}
-                            className="w-full p-2 border rounded-md"
-                          />
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <input
-                            type="number"
-                            value={editedGoal.customerAcquisitionGoal}
-                            onChange={(e) => handleInputChange(e, 'customerAcquisitionGoal')}
-                            className="w-full p-2 border rounded-md"
-                          />
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">{formatDateString(editedGoal.dateSet)}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
-                          <button
-                            onClick={handleSaveGoal}
-                            className="text-green-600 hover:text-green-800 text-sm font-medium"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                          >
-                            Cancel
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      // Render display row
-                      <>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">{goal.month}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">{goal.year}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">${goal.revenueGoal.toLocaleString()}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">{goal.customerAcquisitionGoal.toLocaleString()}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                          <p className="text-gray-900 whitespace-no-wrap">{formatDateString(goal.dateSet)}</p>
-                        </td>
-                        <td className="px-5 py-5 border-b border-gray-200 text-sm flex space-x-2">
-                          <button
-                            onClick={() => handleEditGoal(goal)}
-                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteGoal(goal.id)}
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </>
-                    )}
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <select
+                        value={goal.month}
+                        onChange={(e) => handleCellChange(e, goal.id, 'month')}
+                        onBlur={() => handleSaveGoal(goal)} // Save on blur
+                        className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">Select Month</option>
+                        {monthOptions.map(month => (
+                          <option key={month} value={month}>{month}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <input
+                        type="number"
+                        value={goal.year}
+                        onChange={(e) => handleCellChange(e, goal.id, 'year')}
+                        onBlur={() => handleSaveGoal(goal)} // Save on blur
+                        className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <input
+                        type="number"
+                        value={goal.revenueGoal}
+                        onChange={(e) => handleCellChange(e, goal.id, 'revenueGoal')}
+                        onBlur={() => handleSaveGoal(goal)} // Save on blur
+                        className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <input
+                        type="number"
+                        value={goal.customerAcquisitionGoal}
+                        onChange={(e) => handleCellChange(e, goal.id, 'customerAcquisitionGoal')}
+                        onBlur={() => handleSaveGoal(goal)} // Save on blur
+                        className="w-full p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </td>
+                    <td className="px-5 py-5 border-b border-gray-200 text-sm">
+                      <p className="text-gray-900 whitespace-no-wrap">{formatDateString(goal.dateSet)}</p>
+                    </td>
+                    {/* No Actions column for display/edit */}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+        {/* Optional: Add a general save button if auto-save on blur is not preferred, or for bulk save */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => alert("All changes are saved automatically on cell blur.")}
+            className="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-md cursor-not-allowed"
+            disabled // Disable since saving is on blur
+          >
+            Changes Saved Automatically
+          </button>
+        </div>
       </main>
 
       <footer className="text-center text-gray-500 mt-8">

@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 // Mock campaign data with more details
 const mockCampaigns = [
@@ -81,24 +81,37 @@ const mockCampaigns = [
 ];
 
 export default function CampaignsPage() {
-  // Removed useRouter hook
-  // const router = useRouter();
-  const [campaigns] = useState(mockCampaigns);
+  const router = useRouter();
+  const [campaigns, setCampaigns] = useState(mockCampaigns);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-
+  // Firebase Initialization and Authentication Check
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
-    }
-  }, []); // Empty dependency array as router is no longer used
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    router.push('/login');
   };
 
   const filteredCampaigns = campaigns.filter(campaign => {
@@ -108,6 +121,14 @@ export default function CampaignsPage() {
                           campaign.targetAudience.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesType && matchesSearch;
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading campaigns...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8 font-sans">
@@ -121,7 +142,6 @@ export default function CampaignsPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 font-semibold underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -182,7 +202,7 @@ export default function CampaignsPage() {
 
             {/* Create New Campaign Button */}
             <Link
-              href="/create-campaign" // Reverted to a
+              href="/create-campaign"
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full md:w-auto"
             >
               <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -307,3 +327,4 @@ export default function CampaignsPage() {
     </div>
   );
 }
+

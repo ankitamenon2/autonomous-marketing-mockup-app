@@ -1,6 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirebaseServices } from './firebase'; // Assuming firebase.js is in the parent directory
+import Link from 'next/link';
+
+// Import Chart.js components
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,8 +20,8 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import Link from 'next/link';
 
+// Register Chart.js components. Crucial for Chart.js v3+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -27,16 +34,51 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-    }
-  }, []);
+  const router = useRouter();
+  const [auth, setAuth] = useState<any>(null);
+  const [db, setDb] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login';
+  // Firebase Initialization and Authentication Check
+  useEffect(() => {
+    const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    setDb(firestoreDb);
+
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+        return;
+      }
+      if (!firestoreDb) return;
+
+      // Check if Shopify key is set for this user
+      const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
+      const shopifyDocRef = doc(firestoreDb, `artifacts/${appId}/users/${currentUser.uid}/integrations`, 'shopify');
+
+      getDoc(shopifyDocRef).then((shopifyDocSnap) => {
+        if (!shopifyDocSnap.exists()) {
+          router.push('/onboarding'); // No Shopify key, redirect to onboarding
+        } else {
+          setIsAuthReady(true); // Auth and Shopify check passed
+          setIsLoading(false);
+        }
+      }).catch(error => {
+        console.error("Error checking Shopify integration:", error);
+        router.push('/login'); // Redirect to login on error
+      });
+    });
+  }, [router]);
+
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
+    localStorage.removeItem('isAuthenticated'); // Clear local storage flag
+    router.push('/login');
   };
 
   // --- Mock Data for Dashboard Cards ---
@@ -181,6 +223,13 @@ export default function DashboardPage() {
     },
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">

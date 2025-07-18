@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Removed Next.js specific imports to resolve build errors
-// import { useRouter } from 'next/navigation';
-// import Link from 'next/link';
+import { getAuth } from 'firebase/auth';
+import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
 
 // Import Chart.js components
 import { Line, Bar } from 'react-chartjs-2';
@@ -33,20 +33,33 @@ ChartJS.register(
 );
 
 export default function AnalyticsPage() {
-  // Removed useRouter hook
-  // const router = useRouter();
+  const router = useRouter();
+  const [auth, setAuth] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Authentication check
+  // Firebase Initialization and Authentication Check
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    if (!isAuthenticated) {
-      window.location.href = '/login'; // Reverted to window.location.href for redirection
-    }
-  }, []); // Empty dependency array as router is no longer used
+    const { auth: firebaseAuth, authReadyPromise } = getFirebaseServices();
+    if (!firebaseAuth || !authReadyPromise) return;
+    setAuth(firebaseAuth);
+    authReadyPromise.then(() => {
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        router.push('/login');
+      } else {
+        setIsAuthReady(true);
+        setIsLoading(false);
+      }
+    });
+  }, [router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (auth) {
+      await auth.signOut();
+    }
     localStorage.removeItem('isAuthenticated');
-    window.location.href = '/login'; // Reverted to window.location.href for redirection
+    router.push('/login');
   };
 
   // --- Mock Data for Campaign-Focused Analytics ---
@@ -202,6 +215,14 @@ export default function AnalyticsPage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center text-gray-600">Loading analytics...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-indigo-50 p-8 font-sans">
       <header className="bg-white shadow-md rounded-lg p-6 mb-8 flex justify-between items-center">
@@ -214,7 +235,6 @@ export default function AnalyticsPage() {
             <li><Link href="/settings" className="text-blue-600 hover:underline">Settings</Link></li>
             <li><Link href="/segments" className="text-blue-600 hover:underline">Segments</Link></li>
             <li><Link href="/campaigns" className="text-blue-600 hover:underline">Campaigns</Link></li>
-            {/* Monthly Goals link removed from top navigation for consistency */}
             <li>
               <button
                 onClick={handleLogout}
@@ -309,9 +329,6 @@ export default function AnalyticsPage() {
                                 Revenue
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Conversion Rate (%)
-                            </th>
-                            <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Performance
                             </th>
                         </tr>
@@ -352,21 +369,14 @@ export default function AnalyticsPage() {
                                     <p className="text-gray-900 whitespace-no-wrap">${campaign.revenueGenerated.toLocaleString()}</p>
                                 </td>
                                 <td className="px-5 py-5 border-b border-gray-200 text-sm">
-                                    <p className="text-gray-900 whitespace-no-wrap">{campaign.conversionRate}%</p>
-                                </td>
-                                <td className="px-5 py-5 border-b border-gray-200 text-sm space-x-3">
-                                    <button
-                                        onClick={() => alert(`Viewing details for: ${campaign.name}`)}
-                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                    >
-                                        View
-                                    </button>
-                                    <button
-                                        onClick={() => alert(`Editing: ${campaign.name}`)}
-                                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                                    >
-                                        Edit
-                                    </button>
+                                    <span className={`relative inline-block px-3 py-1 font-semibold leading-tight ${
+                                        campaign.working ? 'text-green-900' : 'text-red-900'
+                                    }`}>
+                                        <span aria-hidden className={`absolute inset-0 opacity-50 rounded-full ${
+                                            campaign.working ? 'bg-green-200' : 'bg-red-200'
+                                        }`}></span>
+                                        <span className="relative">{campaign.working ? 'Working Well' : 'Needs Review'}</span>
+                                    </span>
                                 </td>
                             </tr>
                         ))}
@@ -377,11 +387,11 @@ export default function AnalyticsPage() {
                 )}
               </div>
             </section>
-      </main>
+          </main>
 
-      <footer className="text-center text-gray-500 mt-8">
-        <p>&copy; {new Date().getFullYear()} Autonomous Marketing. All rights reserved.</p>
-      </footer>
-    </div>
+          <footer className="text-center text-gray-500 mt-8">
+            <p>&copy; {new Date().getFullYear()} Autonomous Marketing. All rights reserved.</p>
+          </footer>
+        </div>
   );
 }
