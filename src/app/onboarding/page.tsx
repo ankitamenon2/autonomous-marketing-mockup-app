@@ -3,34 +3,56 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc } from 'firebase/firestore';
-import { getFirebaseServices } from '../firebase'; // Assuming firebase.js is in the parent directory
+import { getFirebaseServices, signOut, onAuthStateChanged } from '../firebase'; // Import signOut and onAuthStateChanged
 
 export default function OnboardingPage() {
   const [shopifyStoreUrl, setShopifyStoreUrl] = useState('');
   const [shopifyApiKey, setShopifyApiKey] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [db, setDb] = useState<import('firebase/firestore').Firestore | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  // Optional: Add a state to know if we've explicitly signed out
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
+    // Only proceed if we're not actively signing out (to prevent redirect loops)
+    if (isSigningOut) return;
+
     const { auth: firebaseAuth, db: firestoreDb, authReadyPromise } = getFirebaseServices();
-    if (!firebaseAuth || !firestoreDb || !authReadyPromise) return;
-    // setAuth(firebaseAuth); // Removed unused auth
+    if (!firebaseAuth || !firestoreDb || !authReadyPromise) {
+      console.warn("Firebase services not fully initialized.");
+      // Consider a better fallback or error display here if this happens frequently
+      return;
+    }
+
     setDb(firestoreDb);
 
     authReadyPromise.then(() => {
       const currentUser = firebaseAuth.currentUser;
       if (!currentUser) {
+        // This means no user (anonymous or otherwise) is logged in.
+        // This should happen if they just signed out, or if anonymous sign-in failed.
         router.push('/login');
         return;
       }
       setUserId(currentUser.uid);
       setIsLoading(false);
     });
-  }, [router]);
+
+    // Optional: Listen for auth state changes if you want to react to sign-out from anywhere
+    // and aren't solely relying on the authReadyPromise's initial check.
+    // const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+    //   if (!user && !isSigningOut) { // If user signs out and it's not our explicit sign out
+    //     console.log("Auth state changed: no user, redirecting to login.");
+    //     router.push('/login');
+    //   }
+    // });
+    // return () => unsubscribe(); // Cleanup listener on component unmount
+
+  }, [router, isSigningOut]); // Add isSigningOut to dependency array
 
   const handleConnectShopify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,8 +71,14 @@ export default function OnboardingPage() {
 
     setIsLoading(true);
     try {
+      // It's generally safer to get environment variables at build time using process.env
+      // rather than relying on a global NEXT_PUBLIC_APP_ID if it's not explicitly passed.
+      // Make sure NEXT_PUBLIC_APP_ID is set in Vercel env variables if you rely on it.
       const appId = process.env.NEXT_PUBLIC_APP_ID || 'default-app-id';
+      
+      // Ensure the path is correct: `artifacts/${appId}/users/${userId}/integrations`
       const shopifyDocRef = doc(db, `artifacts/${appId}/users/${userId}/integrations`, 'shopify');
+      
       await setDoc(shopifyDocRef, {
         storeUrl: shopifyStoreUrl,
         apiKey: shopifyApiKey,
@@ -58,7 +86,7 @@ export default function OnboardingPage() {
       });
       setSuccess('Shopify connected successfully! Account created.');
       setTimeout(() => {
-        router.push('/');
+        router.push('/'); // Redirect to the main dashboard or home page
       }, 2000);
     } catch (err: unknown) {
       const error = err as { message?: string };
@@ -66,6 +94,24 @@ export default function OnboardingPage() {
       setError(error.message || 'Failed to connect Shopify. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true); // Indicate that we are deliberately signing out
+    try {
+      const { auth: firebaseAuth } = getFirebaseServices();
+      if (firebaseAuth) {
+        await signOut(firebaseAuth);
+        console.log("User signed out successfully. Redirecting to login.");
+        // The useEffect will catch the auth state change and redirect to /login
+      }
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      console.error("Error during sign out:", error);
+      setError(error.message || 'Failed to sign out. Please try again.');
+    } finally {
+      setIsSigningOut(false); // Reset state regardless of success/failure
     }
   };
 
@@ -130,6 +176,18 @@ export default function OnboardingPage() {
             {isLoading ? 'Connecting...' : 'Connect Shopify'}
           </button>
         </form>
+
+        {/* Add the Sign Out button here */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleSignOut}
+            className="text-sm text-gray-600 hover:text-gray-900"
+            disabled={isLoading} // Disable while connecting/signing out
+          >
+            Sign Out
+          </button>
+        </div>
+
       </div>
     </div>
   );
