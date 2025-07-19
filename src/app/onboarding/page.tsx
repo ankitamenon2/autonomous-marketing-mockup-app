@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, setDoc } from 'firebase/firestore';
-import { getFirebaseServices, signOut, onAuthStateChanged } from '../firebase'; // Import signOut and onAuthStateChanged
+import { getFirebaseServices, signOut } from '../firebase'; // Import signOut and onAuthStateChanged
 
 export default function OnboardingPage() {
   const [shopifyStoreUrl, setShopifyStoreUrl] = useState('');
